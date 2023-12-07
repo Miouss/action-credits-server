@@ -1,31 +1,24 @@
 import express from "express";
 import cors from "cors";
 import { Request, Response, NextFunction } from "express";
+import dotenv from "dotenv";
+import { actions, credits } from "./routes";
+dotenv.config();
 
 const app = express();
-const port = 3000;
+const port = 3001;
 
 app.use(express.json());
 app.use(cors());
 
-app.get("/", (_, res) => {
-  res.send("Hello World!");
-});
-
-app.post("/api/consume", (req, res) => {
-  const { credits } = req.body;
-  if (credits <= 0) {
-    throw new Error("No credits left");
-  } else {
-    res.status(200).send("Credits consumed");
-  }
-});
+app.use("/api/credits", credits);
+app.use("/api/actions", actions);
 
 app.use((err: any, _: Request, res: Response, __: NextFunction) => {
   console.error(err.stack);
   res.status(400).send(err.message);
 });
 
-app.listen(port, () => {
+app.listen(port, async () => {
   console.log(`Example app listening on port ${port}`);
 });
