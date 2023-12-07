@@ -1,16 +1,13 @@
-import { Router } from 'express';
+import { Router } from "express";
+import {
+  sendActions,
+  executeAction,
+  verifyAction,
+} from "./middlewares";
 
 const actions = Router();
 
-enum Action {
-    INVITE = 'Invite',
-    SEND_MESSAGE = 'Send Message',
-    VISIT = 'Visit',
-}
-
-actions.get('/', (_, res) => {
-    const actions = Object.values(Action);
-    res.json(actions);
-});
+actions.get("/", sendActions);
+actions.post("/queue", verifyAction, executeAction);
 
 export { actions };
