@@ -1,7 +1,13 @@
 import jsonfile from "jsonfile";
 import { UserActions } from "../types";
 import { User, ActionName } from "../enums";
-import { DEFAULT_USERS_ACTIONS, USERS_ACTIONS_FILE_PATH } from "../config";
+import {
+  USERS_ACTIONS_FILE_PATH,
+  DEFAULT_USERS_ACTIONS,
+  randomizeCredits,
+  REFRESH_INTERVAL,
+  ramdomUUID,
+} from "../config";
 
 export async function getUserAction(
   usernameSearched: User,
@@ -60,14 +66,44 @@ function createUsersActionsFile(usersActions: UserActions[]) {
   return jsonfile.writeFile(USERS_ACTIONS_FILE_PATH, usersActions);
 }
 
-export async function setupActionsFile() {
-  try {
-    await doesFileExist();
-  } catch (err) {
-    await initUsersActions();
-  }
+function refreshCreditsInterval(orignalUsersActions: UserActions[]) {
+  return setTimeout(() => resetCredits(orignalUsersActions), REFRESH_INTERVAL);
 }
 
-export async function initUsersActions() {
+export async function setupUsersActionsFile() {
   await createUsersActionsFile(DEFAULT_USERS_ACTIONS);
+
+  refreshCreditsInterval(DEFAULT_USERS_ACTIONS);
+}
+
+export async function resetCredits(orignalUsersActions: UserActions[]) {
+  const usersActions = await getUsersActions();
+  
+  let hasReset = false;
+
+  usersActions.forEach((userAction, i) => {
+    const needReset = userAction.actions.some(
+      (action, j) =>
+        action.credits !== orignalUsersActions[i].actions[j].credits
+    );
+
+    if (needReset) {
+      hasReset = true;
+
+      userAction.actions.forEach((action) => {
+        action.credits = randomizeCredits();
+      });
+
+      userAction.id = ramdomUUID();
+    }
+  });
+
+  if (hasReset) {
+    await updateUsersActions(usersActions);
+    console.log("Credits reseted");
+  } else {
+    console.log("Credits not reseted");
+  }
+
+  refreshCreditsInterval(hasReset ? usersActions : orignalUsersActions);
 }

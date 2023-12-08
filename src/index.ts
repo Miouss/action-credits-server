@@ -4,7 +4,7 @@ import { Request, Response, NextFunction } from "express";
 import { actions } from "./routes";
 
 import dotenv from "dotenv";
-import { setupActionsFile } from "./data/utils";
+import { setupUsersActionsFile } from "./data/utils";
 dotenv.config();
 
 const app = express();
@@ -21,6 +21,6 @@ app.use((err: any, _: Request, res: Response, __: NextFunction) => {
 });
 
 app.listen(port, () => {
-  setupActionsFile();
+  setupUsersActionsFile();
   console.log(`listening on port ${port}`);
 });
