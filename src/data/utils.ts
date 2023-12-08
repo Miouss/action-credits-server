@@ -3,10 +3,9 @@ import { UserActions } from "../types";
 import { User, ActionName } from "../enums";
 import {
   USERS_ACTIONS_FILE_PATH,
+  REFRESH_CREDITS_INTERVAL,
   DEFAULT_USERS_ACTIONS,
   randomizeCredits,
-  REFRESH_INTERVAL,
-  ramdomUUID,
 } from "../config";
 
 export async function getUserAction(
@@ -25,19 +24,6 @@ export async function getUserActions(
   const index = await findUserActionsIndex(usersActions, usernameSearched);
 
   return usersActions[index];
-}
-
-export async function consumeAction(username: User, actionName: ActionName) {
-  const usersActions = await getUsersActions();
-  const index = await findUserActionsIndex(usersActions, username);
-  usersActions[index].actions.find((action) => action.name === actionName)!
-    .credits--;
-
-  await updateUsersActions(usersActions);
-}
-
-export async function doesFileExist() {
-  await getUsersActions();
 }
 
 export async function getUsersActions(): Promise<UserActions[]> {
@@ -66,8 +52,16 @@ function createUsersActionsFile(usersActions: UserActions[]) {
   return jsonfile.writeFile(USERS_ACTIONS_FILE_PATH, usersActions);
 }
 
-function refreshCreditsInterval(orignalUsersActions: UserActions[]) {
-  return setTimeout(() => resetCredits(orignalUsersActions), REFRESH_INTERVAL);
+export async function consumeAction(username: User, actionName: ActionName) {
+  const usersActions = await getUsersActions();
+  const index = await findUserActionsIndex(usersActions, username);
+  findUserActionByName(usersActions[index], actionName)!.credits--;
+
+  await updateUsersActions(usersActions);
+}
+
+function findUserActionByName(userAction: UserActions, actionName: ActionName) {
+  return userAction.actions.find(({ name }) => name === actionName);
 }
 
 export async function setupUsersActionsFile() {
@@ -76,34 +70,39 @@ export async function setupUsersActionsFile() {
   refreshCreditsInterval(DEFAULT_USERS_ACTIONS);
 }
 
-export async function resetCredits(orignalUsersActions: UserActions[]) {
+function refreshCreditsInterval(orignalUsersActions: UserActions[]) {
+  return setTimeout(
+    () => resetCredits(orignalUsersActions),
+    REFRESH_CREDITS_INTERVAL
+  );
+}
+
+async function resetCredits(orignalUsersActions: UserActions[]) {
   const usersActions = await getUsersActions();
-  
-  let hasReset = false;
 
-  usersActions.forEach((userAction, i) => {
-    const needReset = userAction.actions.some(
-      (action, j) =>
-        action.credits !== orignalUsersActions[i].actions[j].credits
-    );
+  let needReset = false;
 
-    if (needReset) {
-      hasReset = true;
+  usersActions.forEach((userActions, i) => {
+    if (hasUsedCredits(userActions, i, orignalUsersActions)) {
+      needReset = true;
 
-      userAction.actions.forEach((action) => {
+      userActions.actions.forEach((action) => {
         action.credits = randomizeCredits();
       });
-
-      userAction.id = ramdomUUID();
     }
   });
 
-  if (hasReset) {
-    await updateUsersActions(usersActions);
-    console.log("Credits reseted");
-  } else {
-    console.log("Credits not reseted");
-  }
+  if (needReset) await updateUsersActions(usersActions);
 
-  refreshCreditsInterval(hasReset ? usersActions : orignalUsersActions);
+  refreshCreditsInterval(needReset ? usersActions : orignalUsersActions);
+}
+
+function hasUsedCredits(
+  userActions: UserActions,
+  i: number,
+  orignalUsersActions: UserActions[]
+) {
+  return userActions.actions.some(
+    (action, j) => action.credits !== orignalUsersActions[i].actions[j].credits
+  );
 }
