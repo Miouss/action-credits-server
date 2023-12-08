@@ -4,7 +4,7 @@ import { Request, Response, NextFunction } from "express";
 import { actions } from "./routes";
 
 import dotenv from "dotenv";
-import { setupActionsFile } from "./data";
+import { setupActionsFile } from "./data/utils";
 dotenv.config();
 
 const app = express();

@@ -1,24 +1,27 @@
 import { Request, Response, NextFunction } from "express";
-import { getAllActions } from "../../../data";
+import { getUserAction } from "../../../data/utils";
+import { ActionName, User } from "../../../enums";
 
 export async function verifyAction(
   req: Request,
   _: Response,
   next: NextFunction
 ) {
-  const action = req.body.action;
-
+  const { username, actionName } = req.body as {
+    username: User;
+    actionName: ActionName;
+  };
+  
   try {
-    await isActionValid(action);
+    await isActionValid(username, actionName);
     next();
   } catch (err) {
     next(err);
   }
 }
 
-async function isActionValid(actionName: string) {
-  const actions = await getAllActions();
-  const validAction = actions.find(({ name }) => name === actionName);
+async function isActionValid(username: User, actionName: ActionName) {
+  const validAction = await getUserAction(username, actionName);
 
   if (!validAction) throw new Error("Invalid action");
 

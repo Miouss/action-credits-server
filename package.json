@@ -5,8 +5,7 @@
   "main": "index.ts",
   "type": "module",
   "scripts": {
-    "start": "nodemon --ignore data/ -r dotenv/config src/index.ts",
-    "test": "test"
+    "start": "nodemon --ignore src/data/users-actions.json -r dotenv/config src/index.ts"
   },
   "author": "",
   "license": "ISC",

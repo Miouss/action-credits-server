@@ -7,7 +7,7 @@ import {
 
 const actions = Router();
 
-actions.get("/", sendActions);
+actions.post("/", sendActions);
 actions.post("/queue", verifyAction, executeAction);
 
 export { actions };
