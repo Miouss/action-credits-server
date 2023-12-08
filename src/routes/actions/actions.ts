@@ -1,9 +1,9 @@
 import { Router } from "express";
-import { sendActions, executeAction, verifyAction } from "./middlewares";
+import { sendActions, executeAction, verifyAction, verifyToken } from "./middlewares";
 
 const actions = Router();
 
-actions.post("/", sendActions);
-actions.post("/queue", verifyAction, executeAction, sendActions);
+actions.post("/", verifyToken, sendActions);
+actions.post("/queue", verifyToken, verifyAction, executeAction, sendActions);
 
 export { actions };

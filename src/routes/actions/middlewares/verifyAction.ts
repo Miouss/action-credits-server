@@ -4,14 +4,17 @@ import { ActionName, User } from "../../../enums";
 
 export async function verifyAction(
   req: Request,
-  _: Response,
+  res: Response,
   next: NextFunction
 ) {
-  const { username, actionName } = req.body as {
-    username: User;
+  const { actionName } = req.body as {
     actionName: ActionName;
   };
-  
+
+  const { username } = res.locals as {
+    username: User;
+  };
+
   try {
     await isActionValid(username, actionName);
     next();

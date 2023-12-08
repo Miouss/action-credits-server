@@ -4,11 +4,14 @@ import { ActionName, User } from "../../../enums";
 
 export async function executeAction(
   req: Request,
-  _: Response,
+  res: Response,
   next: NextFunction
 ) {
-  const { actionName, username } = req.body as {
+  const { actionName } = req.body as {
     actionName: ActionName;
+  };
+
+  const { username } = res.locals as {
     username: User;
   };
 
