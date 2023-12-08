@@ -2,10 +2,12 @@ import { Request, Response, NextFunction } from "express";
 import { consumeAction } from "../../../data";
 
 export async function executeAction(
-  _: Request,
+  req: Request,
   res: Response,
   __: NextFunction
 ) {
-  await consumeAction();
+  const action = req.body.action;
+
+  await consumeAction(action);
   res.sendStatus(200);
 }

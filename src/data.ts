@@ -1,7 +1,9 @@
 import jsonfile from "jsonfile";
-import { Action } from "./types";
+import { Action, ActionName } from "./types";
 
 const filePath = "./data/actions.json";
+const MAX_CREDITS = 5;
+const MIN_CREDITS_PERCENT = 80;
 
 export async function getAllActionsName() {
   const actions = await getAllActions();
@@ -10,10 +12,7 @@ export async function getAllActionsName() {
 }
 
 export async function addAction(action: Action) {
-  const actions = await getAllActions();
-  actions.push(action);
-
-  await updateActions(actions);
+  await jsonfile.writeFile(filePath, action, { flag: "a" });
 }
 
 export async function removeAction() {
@@ -23,11 +22,15 @@ export async function removeAction() {
   await updateActions(actions);
 }
 
-export async function consumeAction() {
+export async function consumeAction(action: ActionName) {
   const actions = await getAllActions();
-  actions[0].credits -= 1;
+  actions.find(({ name }) => name === action)!.credits--;
 
   await updateActions(actions);
+}
+
+export async function doesFileExist() {
+  await getAllActions();
 }
 
 export function getAllActions(): Promise<Action[]> {
@@ -36,4 +39,27 @@ export function getAllActions(): Promise<Action[]> {
 
 function updateActions(actions: Action[]) {
   return jsonfile.writeFile(filePath, actions);
+}
+
+export async function setupActionsFile() {
+  try {
+    await doesFileExist();
+  } catch (err) {
+    await initActions();
+  }
+}
+
+export async function initActions() {
+  await updateActions(
+    Object.values(ActionName).map((name) => ({
+      name,
+      credits: randomMinPercent(MAX_CREDITS, MIN_CREDITS_PERCENT),
+    }))
+  );
+}
+
+function randomMinPercent(max: number, percent: number) {
+  const min = Math.ceil(max * (percent / 100));
+
+  return Math.floor(Math.random() * (max - min + 1)) + min;
 }
