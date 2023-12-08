@@ -6,6 +6,7 @@ import {
   REFRESH_CREDITS_INTERVAL,
   DEFAULT_USERS_ACTIONS,
   randomizeCredits,
+  randomUUID,
 } from "../config";
 
 export async function getUserAction(
@@ -89,6 +90,7 @@ async function resetCredits(orignalUsersActions: UserActions[]) {
       userActions.actions.forEach((action) => {
         action.credits = randomizeCredits();
       });
+      userActions.id = randomUUID();
     }
   });
 
