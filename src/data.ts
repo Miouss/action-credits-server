@@ -33,12 +33,12 @@ export async function doesFileExist() {
   await getAllActions();
 }
 
-export function getAllActions(): Promise<Action[]> {
-  return jsonfile.readFile(filePath);
+export async function getAllActions(): Promise<Action[]> {
+  return await jsonfile.readFile(filePath);
 }
 
-function updateActions(actions: Action[]) {
-  return jsonfile.writeFile(filePath, actions);
+async function updateActions(actions: Action[]) {
+  return await jsonfile.writeFile(filePath, actions);
 }
 
 export async function setupActionsFile() {
