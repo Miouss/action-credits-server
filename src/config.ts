@@ -11,16 +11,14 @@ export const MIN_CREDITS_PERCENT = 80;
 
 export const DEFAULT_USERS: User[] = Object.values(User);
 export const DEFAULT_ACTIONS: ActionName[] = Object.values(ActionName);
-export const DEFAULT_USERS_ACTIONS: UserActions[] = DEFAULT_USERS.map(
-  (username) => ({
-    username,
-    actions: DEFAULT_ACTIONS.map((name) => ({
-      name,
-      credits: randomizeCredits(),
-    })),
-    id: uuidv4(),
-  })
-);
+export const DEFAULT_USERS_ACTIONS: UserActions[] = DEFAULT_USERS.map((username) => ({
+  username,
+  actions: DEFAULT_ACTIONS.map((name) => ({
+    name,
+    credits: randomizeCredits(),
+  })),
+  id: ramdomUUID(),
+}));
 
 export function ramdomUUID() {
   return uuidv4();
