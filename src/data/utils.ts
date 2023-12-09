@@ -3,6 +3,7 @@ import { Action, UserActions } from "../types";
 import { ActionName } from "../enums";
 import {
   USER_ACTIONS_FILE_PATH,
+  EXECUTION_INTERVAL,
   REFRESH_CREDITS_INTERVAL,
   DEFAULT_USER_ACTIONS,
   randomizeCredits,
@@ -10,7 +11,6 @@ import {
 } from "../config";
 
 import Ajv, { JSONSchemaType } from "ajv";
-import { EXECUTION_INTERVAL } from "../config/misc";
 
 export function UserActionsFactory() {
   return {
