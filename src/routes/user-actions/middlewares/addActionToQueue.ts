@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { ActionName } from "../../../enums";
+import { ActionName } from "../../../types/enums";
 import { UserActionsFactory } from "../../../data/utils";
 
 export async function addActionToQueue(

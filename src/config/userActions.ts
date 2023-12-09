@@ -1,5 +1,5 @@
-import { ActionName } from "../enums";
-import { UserActions } from "../types";
+import { ActionName } from "../types/enums";
+import { UserActions } from "../types/types";
 import { randomizeCredits } from "./credits";
 import { v4 as uuidv4 } from "uuid";
 

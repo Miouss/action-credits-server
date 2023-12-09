@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
-import { ActionName } from "../../../enums";
-import { Action } from "../../../types";
+import { ActionName } from "../../../types/enums";
+import { Action } from "../../../types/types";
 import { UserActionsFactory } from "../../../data/utils";
 
 export async function verifyAction(

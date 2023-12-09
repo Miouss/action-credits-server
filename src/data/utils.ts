@@ -1,6 +1,6 @@
 import jsonfile from "jsonfile";
-import { Action, UserActions } from "../types";
-import { ActionName } from "../enums";
+import { Action, UserActions } from "../types/types";
+import { ActionName } from "../types/enums";
 import {
   USER_ACTIONS_FILE_PATH,
   EXECUTION_INTERVAL,
