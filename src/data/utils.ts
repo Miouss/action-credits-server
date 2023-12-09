@@ -2,7 +2,7 @@ import jsonfile from "jsonfile";
 import { Action, UserActions } from "../types";
 import { ActionName } from "../enums";
 import {
-  USERS_ACTIONS_FILE_PATH,
+  USER_ACTIONS_FILE_PATH,
   REFRESH_CREDITS_INTERVAL,
   DEFAULT_USER_ACTIONS,
   randomizeCredits,
@@ -10,9 +10,10 @@ import {
 } from "../config";
 
 import Ajv, { JSONSchemaType } from "ajv";
+import { EXECUTION_INTERVAL } from "../config/misc";
 
 export async function getUserActions(): Promise<UserActions> {
-  return await jsonfile.readFile(USERS_ACTIONS_FILE_PATH);
+  return await jsonfile.readFile(USER_ACTIONS_FILE_PATH);
 }
 
 export async function getActions(): Promise<Action[]> {
@@ -28,16 +29,22 @@ export async function getQueue() {
 }
 
 async function updateUserActions(userActions: UserActions) {
-  return await jsonfile.writeFile(USERS_ACTIONS_FILE_PATH, userActions);
+  return await jsonfile.writeFile(USER_ACTIONS_FILE_PATH, userActions);
 }
 
 function createUsersActionsFile(userActions: UserActions) {
-  return jsonfile.writeFile(USERS_ACTIONS_FILE_PATH, userActions);
+  return jsonfile.writeFile(USER_ACTIONS_FILE_PATH, userActions);
 }
 
-export async function consumeAction(actionName: ActionName) {
+export function hasAnyActionInQueue(queue: ActionName[]) {
+  return queue.length > 0;
+}
+
+export async function consumeAction() {
   const userAction = await getUserActions();
-  userAction.actions.find(({ name }) => name === actionName)!.credits--;
+  userAction.actions.find(({ name }) => name === userAction.queue[0])!
+    .credits--;
+  userAction.queue.shift();
 
   await updateUserActions(userAction);
 }
@@ -99,6 +106,8 @@ export async function setupUsersActionsFile() {
     console.log("File is invalid, creating new file...");
     await createUsersActionsFile(DEFAULT_USER_ACTIONS);
     console.log("File created");
+  } finally {
+    executeActionEachInterval();
   }
 
   refreshCreditsInterval(DEFAULT_USER_ACTIONS);
@@ -136,4 +145,12 @@ function hasUsedCredits(
   orignalUserActions: UserActions
 ) {
   return JSON.stringify(orignalUserActions) !== JSON.stringify(userActions);
+}
+
+export function executeActionEachInterval() {
+  return setInterval(async () => {
+    const queue = await getQueue();
+    if (!hasAnyActionInQueue(queue)) return;
+    await consumeAction();
+  }, EXECUTION_INTERVAL);
 }

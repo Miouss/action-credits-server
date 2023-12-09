@@ -3,7 +3,7 @@ import { UserActions } from "../types";
 import { randomizeCredits } from "./credits";
 import { v4 as uuidv4 } from "uuid";
 
-export const USERS_ACTIONS_FILE_PATH = "./src/data/user-actions.json";
+export const USER_ACTIONS_FILE_PATH = "./src/data/user-actions.json";
 
 export const DEFAULT_ACTIONS: ActionName[] = Object.values(ActionName);
 export const DEFAULT_USER_ACTIONS: UserActions = {
