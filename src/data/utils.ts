@@ -12,17 +12,33 @@ import {
 import Ajv, { JSONSchemaType } from "ajv";
 import { EXECUTION_INTERVAL } from "../config/misc";
 
-export async function getUserActions(): Promise<UserActions> {
+export function UserActionsFactory() {
+  return {
+    get: () => getUserActions(),
+    actions: {
+      get: () => getActions(),
+      findByName: (actionName: ActionName) => findActionByName(actionName),
+    },
+    queue: {
+      get: () => getQueue(),
+      hasAny: (queue: ActionName[]) => hasAnyActionInQueue(queue),
+      consume: () => consumeAction(),
+      add: (actionName: ActionName) => addAction(actionName),
+    },
+  };
+}
+
+async function getUserActions(): Promise<UserActions> {
   return await jsonfile.readFile(USER_ACTIONS_FILE_PATH);
 }
 
-export async function getActions(): Promise<Action[]> {
+async function getActions(): Promise<Action[]> {
   const userActions = await getUserActions();
 
   return userActions.actions;
 }
 
-export async function getQueue() {
+async function getQueue() {
   const userActions = await getUserActions();
 
   return userActions.queue;
@@ -36,11 +52,11 @@ function createUsersActionsFile(userActions: UserActions) {
   return jsonfile.writeFile(USER_ACTIONS_FILE_PATH, userActions);
 }
 
-export function hasAnyActionInQueue(queue: ActionName[]) {
+function hasAnyActionInQueue(queue: ActionName[]) {
   return queue.length > 0;
 }
 
-export async function consumeAction() {
+async function consumeAction() {
   const userAction = await getUserActions();
   userAction.actions.find(({ name }) => name === userAction.queue[0])!
     .credits--;
@@ -49,7 +65,7 @@ export async function consumeAction() {
   await updateUserActions(userAction);
 }
 
-export async function addAction(actionName: ActionName) {
+async function addAction(actionName: ActionName) {
   const userActions = await getUserActions();
 
   userActions.queue.push(actionName);
@@ -57,7 +73,7 @@ export async function addAction(actionName: ActionName) {
   await updateUserActions(userActions);
 }
 
-export async function findActionByName(actionName: ActionName) {
+async function findActionByName(actionName: ActionName) {
   const userAction = await getUserActions();
 
   return userAction.actions.find(({ name }) => name === actionName);
@@ -147,7 +163,7 @@ function hasUsedCredits(
   return JSON.stringify(orignalUserActions) !== JSON.stringify(userActions);
 }
 
-export function executeActionEachInterval() {
+function executeActionEachInterval() {
   return setInterval(async () => {
     const queue = await getQueue();
     if (!hasAnyActionInQueue(queue)) return;

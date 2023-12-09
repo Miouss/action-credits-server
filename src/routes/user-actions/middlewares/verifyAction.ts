@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { ActionName } from "../../../enums";
 import { Action } from "../../../types";
-import { findActionByName } from "../../../data/utils";
+import { UserActionsFactory } from "../../../data/utils";
 
 export async function verifyAction(
   req: Request,
@@ -23,7 +23,7 @@ export async function verifyAction(
 }
 
 async function verifyValidAction(actionName: ActionName) {
-  const validAction = await findActionByName(actionName);
+  const validAction = await UserActionsFactory().actions.findByName(actionName);
 
   if (!validAction) throw new Error("Invalid action");
 

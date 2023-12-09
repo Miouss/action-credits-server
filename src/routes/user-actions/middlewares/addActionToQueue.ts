@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { ActionName } from "../../../enums";
-import { addAction } from "../../../data/utils";
+import { UserActionsFactory } from "../../../data/utils";
 
 export async function addActionToQueue(
   req: Request,
@@ -11,7 +11,7 @@ export async function addActionToQueue(
     actionName: ActionName;
   };
 
-  await addAction(actionName);
+  await UserActionsFactory().queue.add(actionName);
 
   next();
 }
