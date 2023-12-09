@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { UserActionsFactory } from "../../../data/utils";
-import { EXECUTION_INTERVAL } from "../../../config/misc";
+import { EXECUTION_INTERVAL } from "../../../config";
 
 export async function sendUserActions(
   _: Request,
