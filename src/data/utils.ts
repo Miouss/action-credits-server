@@ -169,7 +169,7 @@ function hasUsedCredits(
   );
 }
 
-export function executeActionEachInterval() {
+function executeActionEachInterval() {
   return setInterval(async () => {
     const queue = await getQueue();
     if (!UserActionsFactory().queue.hasAny(queue)) return;
