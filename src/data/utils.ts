@@ -15,6 +15,7 @@ import { EXECUTION_INTERVAL } from "../config/misc";
 export function UserActionsFactory() {
   return {
     get: () => getUserActions(),
+    update: (userActions: UserActions) => updateUserActions(userActions),
     actions: {
       get: () => getActions(),
       findByName: (actionName: ActionName) => findActionByName(actionName),
@@ -22,8 +23,8 @@ export function UserActionsFactory() {
     queue: {
       get: () => getQueue(),
       hasAny: (queue: ActionName[]) => hasAnyActionInQueue(queue),
-      consume: () => consumeAction(),
       add: (actionName: ActionName) => addAction(actionName),
+      consumeAction: () => consumeAction(),
     },
   };
 }
@@ -33,13 +34,13 @@ async function getUserActions(): Promise<UserActions> {
 }
 
 async function getActions(): Promise<Action[]> {
-  const userActions = await getUserActions();
+  const userActions = await UserActionsFactory().get();
 
   return userActions.actions;
 }
 
 async function getQueue() {
-  const userActions = await getUserActions();
+  const userActions = await UserActionsFactory().get();
 
   return userActions.queue;
 }
@@ -57,7 +58,7 @@ function hasAnyActionInQueue(queue: ActionName[]) {
 }
 
 async function consumeAction() {
-  const userAction = await getUserActions();
+  const userAction = await UserActionsFactory().get();
   userAction.actions.find(({ name }) => name === userAction.queue[0])!
     .credits--;
   userAction.queue.shift();
@@ -66,7 +67,7 @@ async function consumeAction() {
 }
 
 async function addAction(actionName: ActionName) {
-  const userActions = await getUserActions();
+  const userActions = await UserActionsFactory().get();
 
   userActions.queue.push(actionName);
 
@@ -74,7 +75,7 @@ async function addAction(actionName: ActionName) {
 }
 
 async function findActionByName(actionName: ActionName) {
-  const userAction = await getUserActions();
+  const userAction = await UserActionsFactory().get();
 
   return userAction.actions.find(({ name }) => name === actionName);
 }
@@ -106,7 +107,7 @@ async function validateFile() {
   };
 
   const validate = ajv.compile(schema);
-  const usersActions = await getUserActions();
+  const usersActions = await UserActionsFactory().get();
 
   if (!validate(usersActions)) {
     throw new Error();
@@ -126,7 +127,7 @@ export async function setupUsersActionsFile() {
     executeActionEachInterval();
   }
 
-  refreshCreditsDelay(await getUserActions());
+  refreshCreditsDelay(await UserActionsFactory().get());
 }
 
 function refreshCreditsDelay(orignalUsersActions: UserActions) {
@@ -137,7 +138,7 @@ function refreshCreditsDelay(orignalUsersActions: UserActions) {
 }
 
 async function resetCredits(orignalUserActions: UserActions) {
-  const userActions = await getUserActions();
+  const userActions = await UserActionsFactory().get();
 
   let needReset = false;
 
@@ -151,7 +152,7 @@ async function resetCredits(orignalUserActions: UserActions) {
     userActions.id = randomUUID();
   }
 
-  if (needReset) await updateUserActions(userActions);
+  if (needReset) await UserActionsFactory().update(userActions);
 
   refreshCreditsDelay(needReset ? userActions : orignalUserActions);
 }
@@ -166,7 +167,7 @@ function hasUsedCredits(
 function executeActionEachInterval() {
   return setInterval(async () => {
     const queue = await getQueue();
-    if (!hasAnyActionInQueue(queue)) return;
-    await consumeAction();
+    if (!UserActionsFactory().queue.hasAny(queue)) return;
+    await UserActionsFactory().queue.consumeAction();
   }, EXECUTION_INTERVAL);
 }
