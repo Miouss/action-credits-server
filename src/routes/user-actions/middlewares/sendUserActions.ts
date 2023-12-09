@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { getUserActions } from "../../../data/utils";
+import { EXECUTION_INTERVAL } from "../../../config/misc";
 
 export async function sendUserActions(
   _: Request,
@@ -7,5 +8,5 @@ export async function sendUserActions(
   __: NextFunction
 ) {
   const userActions = await getUserActions();
-  res.json(userActions);
+  res.json({ userActions, executionInterval: EXECUTION_INTERVAL });
 }
