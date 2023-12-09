@@ -126,7 +126,7 @@ export async function setupUsersActionsFile() {
     await createUsersActionsFile(DEFAULT_USER_ACTIONS);
     console.log("File created");
   } finally {
-    /* executeActionEachInterval(); */
+    executeActionEachInterval();
   }
 
   refreshCreditsDelay(await UserActionsFactory().get());
