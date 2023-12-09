@@ -6,7 +6,7 @@ import { setupUsersActionsFile } from "./data/utils";
 
 export function initServer() {
   const app = express();
-  const port = 3001;
+  const { PORT } = process.env;
 
   app.use(express.json());
   app.use(cors());
@@ -18,8 +18,8 @@ export function initServer() {
     res.status(400).send(err.message);
   });
 
-  app.listen(port, () => {
+  app.listen(PORT, () => {
     setupUsersActionsFile();
-    console.log(`listening on port ${port}`);
+    console.log(`listening on port ${PORT}`);
   });
 }
