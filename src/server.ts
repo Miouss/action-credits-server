@@ -1,7 +1,7 @@
 import express, { Request, Response, NextFunction } from "express";
 import cors from "cors";
 
-import { actions } from "./routes";
+import { userActions } from "./routes";
 import { setupUsersActionsFile } from "./data/utils";
 
 export function initServer() {
@@ -11,7 +11,7 @@ export function initServer() {
   app.use(express.json());
   app.use(cors());
 
-  app.use("/api/actions", actions);
+  app.use("/api/user-actions", userActions);
 
   app.use((err: any, _: Request, res: Response, __: NextFunction) => {
     console.error(err.message);
