@@ -163,7 +163,10 @@ function hasUsedCredits(
   userActions: UserActions,
   orignalUserActions: UserActions
 ) {
-  return JSON.stringify(orignalUserActions) !== JSON.stringify(userActions);
+  return (
+    JSON.stringify(orignalUserActions.actions) !==
+    JSON.stringify(userActions.actions)
+  );
 }
 
 export function executeActionEachInterval() {
