@@ -8,5 +8,6 @@ export interface Action {
 export interface UserActions {
   username: User;
   actions: Action[];
+  queue: ActionName[];
   id: string;
 }

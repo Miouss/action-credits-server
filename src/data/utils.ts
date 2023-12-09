@@ -1,5 +1,5 @@
 import jsonfile from "jsonfile";
-import { UserActions } from "../types";
+import { Action, UserActions } from "../types";
 import { User, ActionName } from "../enums";
 import {
   USERS_ACTIONS_FILE_PATH,
@@ -8,6 +8,8 @@ import {
   randomizeCredits,
   randomUUID,
 } from "../config";
+
+import Ajv, { JSONSchemaType } from "ajv";
 
 export async function getUserAction(
   usernameSearched: User,
@@ -53,20 +55,90 @@ function createUsersActionsFile(usersActions: UserActions[]) {
   return jsonfile.writeFile(USERS_ACTIONS_FILE_PATH, usersActions);
 }
 
-export async function consumeAction(username: User, actionName: ActionName) {
+export async function consumeAction(username: User) {
   const usersActions = await getUsersActions();
   const index = await findUserActionsIndex(usersActions, username);
+  const actionName = usersActions[index].queue.shift()!;
+
   findUserActionByName(usersActions[index], actionName)!.credits--;
 
   await updateUsersActions(usersActions);
+}
+
+export async function addActionToUserActionQueue(
+  actionName: ActionName,
+  username: User
+) {
+  const usersActions = await getUsersActions();
+  const index = await findUserActionsIndex(usersActions, username);
+
+  usersActions[index].queue.push(actionName);
+
+  await updateUsersActions(usersActions);
+}
+
+export async function getUserQueue(username: User) {
+  const usersActions = await getUsersActions();
+  const index = await findUserActionsIndex(usersActions, username);
+
+  return usersActions[index].queue;
 }
 
 function findUserActionByName(userAction: UserActions, actionName: ActionName) {
   return userAction.actions.find(({ name }) => name === actionName);
 }
 
+async function validateFile() {
+  const ajv = new Ajv();
+  const actionSchema: JSONSchemaType<Action> = {
+    type: "object",
+    properties: {
+      name: { type: "string", enum: Object.values(ActionName) },
+      credits: { type: "number" },
+    },
+    required: ["name", "credits"],
+    additionalProperties: false,
+  };
+
+  const schema: JSONSchemaType<UserActions[]> = {
+    type: "array",
+    items: {
+      type: "object",
+      properties: {
+        username: {
+          type: "string",
+          enum: Object.values(User),
+        },
+        actions: { type: "array", items: actionSchema },
+        queue: {
+          type: "array",
+          items: { type: "string", enum: Object.values(ActionName) },
+        },
+        id: { type: "string" },
+      },
+      required: ["username", "actions", "queue", "id"],
+      additionalProperties: false,
+    },
+  };
+
+  const validate = ajv.compile(schema);
+  const usersActions = await getUsersActions();
+
+  if (!validate(usersActions)) {
+    throw new Error();
+  }
+}
+
 export async function setupUsersActionsFile() {
-  await createUsersActionsFile(DEFAULT_USERS_ACTIONS);
+  try {
+    console.log("Validating file...");
+    await validateFile();
+    console.log("File is valid, no need to create new file");
+  } catch (err) {
+    console.log("File is invalid, creating new file...");
+    await createUsersActionsFile(DEFAULT_USERS_ACTIONS);
+    console.log("File created");
+  }
 
   refreshCreditsInterval(DEFAULT_USERS_ACTIONS);
 }

@@ -13,6 +13,7 @@ export const DEFAULT_USERS_ACTIONS: UserActions[] = DEFAULT_USERS.map((username)
     name,
     credits: randomizeCredits(),
   })),
+  queue: [],
   id: randomUUID(),
 }));
 
