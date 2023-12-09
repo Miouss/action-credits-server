@@ -110,10 +110,10 @@ export async function setupUsersActionsFile() {
     executeActionEachInterval();
   }
 
-  refreshCreditsInterval(DEFAULT_USER_ACTIONS);
+  refreshCreditsDelay(await getUserActions());
 }
 
-function refreshCreditsInterval(orignalUsersActions: UserActions) {
+function refreshCreditsDelay(orignalUsersActions: UserActions) {
   return setTimeout(
     () => resetCredits(orignalUsersActions),
     REFRESH_CREDITS_INTERVAL
@@ -137,7 +137,7 @@ async function resetCredits(orignalUserActions: UserActions) {
 
   if (needReset) await updateUserActions(userActions);
 
-  refreshCreditsInterval(needReset ? userActions : orignalUserActions);
+  refreshCreditsDelay(needReset ? userActions : orignalUserActions);
 }
 
 function hasUsedCredits(
