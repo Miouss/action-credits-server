@@ -14,17 +14,19 @@ import Ajv, { JSONSchemaType } from "ajv";
 
 export function UserActionsFactory() {
   return {
-    get: () => getUserActions(),
-    update: (userActions: UserActions) => updateUserActions(userActions),
+    get: async () => await getUserActions(),
+    update: async (userActions: UserActions) =>
+      await updateUserActions(userActions),
     actions: {
       get: () => getActions(),
-      findByName: (actionName: ActionName) => findActionByName(actionName),
+      findByName: async (actionName: ActionName) =>
+        await findActionByName(actionName),
     },
     queue: {
-      get: () => getQueue(),
+      get: async () => await getQueue(),
       hasAny: (queue: ActionName[]) => hasAnyActionInQueue(queue),
-      add: (actionName: ActionName) => addAction(actionName),
-      consumeAction: () => consumeAction(),
+      add: async (actionName: ActionName) => await addAction(actionName),
+      consumeAction: async () => await consumeAction(),
     },
   };
 }
@@ -63,7 +65,7 @@ async function consumeAction() {
     .credits--;
   userAction.queue.shift();
 
-  await updateUserActions(userAction);
+  await UserActionsFactory().update(userAction);
 }
 
 async function addAction(actionName: ActionName) {
@@ -71,7 +73,7 @@ async function addAction(actionName: ActionName) {
 
   userActions.queue.push(actionName);
 
-  await updateUserActions(userActions);
+  await UserActionsFactory().update(userActions);
 }
 
 async function findActionByName(actionName: ActionName) {
@@ -124,7 +126,7 @@ export async function setupUsersActionsFile() {
     await createUsersActionsFile(DEFAULT_USER_ACTIONS);
     console.log("File created");
   } finally {
-    executeActionEachInterval();
+    /* executeActionEachInterval(); */
   }
 
   refreshCreditsDelay(await UserActionsFactory().get());
@@ -164,7 +166,7 @@ function hasUsedCredits(
   return JSON.stringify(orignalUserActions) !== JSON.stringify(userActions);
 }
 
-function executeActionEachInterval() {
+export function executeActionEachInterval() {
   return setInterval(async () => {
     const queue = await getQueue();
     if (!UserActionsFactory().queue.hasAny(queue)) return;
