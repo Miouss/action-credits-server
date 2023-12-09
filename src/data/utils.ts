@@ -1,90 +1,58 @@
 import jsonfile from "jsonfile";
 import { Action, UserActions } from "../types";
-import { User, ActionName } from "../enums";
+import { ActionName } from "../enums";
 import {
   USERS_ACTIONS_FILE_PATH,
   REFRESH_CREDITS_INTERVAL,
-  DEFAULT_USERS_ACTIONS,
+  DEFAULT_USER_ACTIONS,
   randomizeCredits,
   randomUUID,
 } from "../config";
 
 import Ajv, { JSONSchemaType } from "ajv";
 
-export async function getUserAction(
-  usernameSearched: User,
-  actionName: ActionName
-) {
-  const { actions } = await getUserActions(usernameSearched);
-
-  return actions.find(({ name }) => name === actionName);
-}
-
-export async function getUserActions(
-  usernameSearched: User
-): Promise<UserActions> {
-  const usersActions = await getUsersActions();
-  const index = await findUserActionsIndex(usersActions, usernameSearched);
-
-  return usersActions[index];
-}
-
-export async function getUsersActions(): Promise<UserActions[]> {
+export async function getUserActions(): Promise<UserActions> {
   return await jsonfile.readFile(USERS_ACTIONS_FILE_PATH);
 }
 
-export async function findUserActionsIndex(
-  usersActions: UserActions[],
-  usernameSearched: User
-): Promise<number> {
-  const userActionIndex = usersActions.findIndex(
-    ({ username }) => username === usernameSearched
-  );
+export async function getActions(): Promise<Action[]> {
+  const userActions = await getUserActions();
 
-  if (userActionIndex === -1)
-    throw new Error(`User ${usernameSearched} not found`);
-
-  return userActionIndex;
+  return userActions.actions;
 }
 
-async function updateUsersActions(usersActions: UserActions[]) {
-  return await jsonfile.writeFile(USERS_ACTIONS_FILE_PATH, usersActions);
+export async function getQueue() {
+  const userActions = await getUserActions();
+
+  return userActions.queue;
 }
 
-function createUsersActionsFile(usersActions: UserActions[]) {
-  return jsonfile.writeFile(USERS_ACTIONS_FILE_PATH, usersActions);
+async function updateUserActions(userActions: UserActions) {
+  return await jsonfile.writeFile(USERS_ACTIONS_FILE_PATH, userActions);
 }
 
-export async function consumeAction(username: User) {
-  const usersActions = await getUsersActions();
-  const index = await findUserActionsIndex(usersActions, username);
-  const actionName = usersActions[index].queue.shift()!;
-
-  findUserActionByName(usersActions[index], actionName)!.credits--;
-
-  await updateUsersActions(usersActions);
+function createUsersActionsFile(userActions: UserActions) {
+  return jsonfile.writeFile(USERS_ACTIONS_FILE_PATH, userActions);
 }
 
-export async function addActionToUserActionQueue(
-  actionName: ActionName,
-  username: User
-) {
-  const usersActions = await getUsersActions();
-  const index = await findUserActionsIndex(usersActions, username);
+export async function consumeAction(actionName: ActionName) {
+  const userAction = await getUserActions();
+  userAction.actions.find(({ name }) => name === actionName)!.credits--;
 
-  usersActions[index].queue.push(actionName);
-
-  await updateUsersActions(usersActions);
+  await updateUserActions(userAction);
 }
 
-export async function getUserQueue(username: User) {
-  const usersActions = await getUsersActions();
-  const index = await findUserActionsIndex(usersActions, username);
+export async function addAction(actionName: ActionName) {
+  const userActions = await getUserActions();
 
-  return usersActions[index].queue;
+  userActions.queue.push(actionName);
+
+  await updateUserActions(userActions);
 }
 
-function findUserActionByName(userAction: UserActions, actionName: ActionName) {
+export async function findActionByName(actionName: ActionName) {
+  const userAction = await getUserActions();
+
   return userAction.actions.find(({ name }) => name === actionName);
 }
 
@@ -100,29 +68,22 @@ async function validateFile() {
     additionalProperties: false,
   };
 
-  const schema: JSONSchemaType<UserActions[]> = {
-    type: "array",
-    items: {
-      type: "object",
-      properties: {
-        username: {
-          type: "string",
-          enum: Object.values(User),
-        },
-        actions: { type: "array", items: actionSchema },
-        queue: {
-          type: "array",
-          items: { type: "string", enum: Object.values(ActionName) },
-        },
-        id: { type: "string" },
+  const schema: JSONSchemaType<UserActions> = {
+    type: "object",
+    properties: {
+      actions: { type: "array", items: actionSchema },
+      queue: {
+        type: "array",
+        items: { type: "string", enum: Object.values(ActionName) },
       },
-      required: ["username", "actions", "queue", "id"],
-      additionalProperties: false,
+      id: { type: "string" },
     },
+    required: ["actions", "queue", "id"],
+    additionalProperties: false,
   };
 
   const validate = ajv.compile(schema);
-  const usersActions = await getUsersActions();
+  const usersActions = await getUserActions();
 
   if (!validate(usersActions)) {
     throw new Error();
@@ -136,47 +97,43 @@ export async function setupUsersActionsFile() {
     console.log("File is valid, no need to create new file");
   } catch (err) {
     console.log("File is invalid, creating new file...");
-    await createUsersActionsFile(DEFAULT_USERS_ACTIONS);
+    await createUsersActionsFile(DEFAULT_USER_ACTIONS);
     console.log("File created");
   }
 
-  refreshCreditsInterval(DEFAULT_USERS_ACTIONS);
+  refreshCreditsInterval(DEFAULT_USER_ACTIONS);
 }
 
-function refreshCreditsInterval(orignalUsersActions: UserActions[]) {
+function refreshCreditsInterval(orignalUsersActions: UserActions) {
   return setTimeout(
     () => resetCredits(orignalUsersActions),
     REFRESH_CREDITS_INTERVAL
   );
 }
 
-async function resetCredits(orignalUsersActions: UserActions[]) {
-  const usersActions = await getUsersActions();
+async function resetCredits(orignalUserActions: UserActions) {
+  const userActions = await getUserActions();
 
   let needReset = false;
 
-  usersActions.forEach((userActions, i) => {
-    if (hasUsedCredits(userActions, i, orignalUsersActions)) {
-      needReset = true;
+  if (hasUsedCredits(userActions, orignalUserActions)) {
+    needReset = true;
 
-      userActions.actions.forEach((action) => {
-        action.credits = randomizeCredits();
-      });
-      userActions.id = randomUUID();
-    }
-  });
+    userActions.actions.forEach((action) => {
+      action.credits = randomizeCredits();
+    });
 
-  if (needReset) await updateUsersActions(usersActions);
+    userActions.id = randomUUID();
+  }
 
-  refreshCreditsInterval(needReset ? usersActions : orignalUsersActions);
+  if (needReset) await updateUserActions(userActions);
+
+  refreshCreditsInterval(needReset ? userActions : orignalUserActions);
 }
 
 function hasUsedCredits(
   userActions: UserActions,
-  i: number,
-  orignalUsersActions: UserActions[]
+  orignalUserActions: UserActions
 ) {
-  return userActions.actions.some(
-    (action, j) => action.credits !== orignalUsersActions[i].actions[j].credits
-  );
+  return JSON.stringify(orignalUserActions) !== JSON.stringify(userActions);
 }

@@ -1,2 +1,2 @@
 export * from "./credits";
-export * from "./usersActions";
+export * from "./userActions";

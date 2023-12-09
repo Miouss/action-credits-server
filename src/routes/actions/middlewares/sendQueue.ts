@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
-import { getUserQueue } from "../../../data/utils";
+import { getQueue } from "../../../data/utils";
 
 export async function sendQueue(_: Request, res: Response, __: NextFunction) {
-  const queue = await getUserQueue(res.locals.username);
+  const queue = await getQueue();
   res.status(200).json({ queue });
 }

@@ -1,4 +1,4 @@
-import { ActionName, User } from "./enums";
+import { ActionName } from "./enums";
 
 export interface Action {
   name: ActionName;
@@ -6,7 +6,6 @@ export interface Action {
 }
 
 export interface UserActions {
-  username: User;
   actions: Action[];
   queue: ActionName[];
   id: string;

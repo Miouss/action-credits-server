@@ -1,23 +1,19 @@
 import { Request, Response, NextFunction } from "express";
-import { getUserAction } from "../../../data/utils";
-import { ActionName, User } from "../../../enums";
+import { ActionName } from "../../../enums";
 import { Action } from "../../../types";
+import { findActionByName } from "../../../data/utils";
 
 export async function verifyAction(
   req: Request,
-  res: Response,
+  _: Response,
   next: NextFunction
 ) {
   const { actionName } = req.body as {
     actionName: ActionName;
   };
 
-  const { username } = res.locals as {
-    username: User;
-  };
-
   try {
-    const validAction = await verifyValidAction(username, actionName);
+    const validAction = await verifyValidAction(actionName);
     verifyCredits(validAction);
 
     next();
@@ -26,8 +22,8 @@ export async function verifyAction(
   }
 }
 
-async function verifyValidAction(username: User, actionName: ActionName) {
-  const validAction = await getUserAction(username, actionName);
+async function verifyValidAction(actionName: ActionName) {
+  const validAction = await findActionByName(actionName);
 
   if (!validAction) throw new Error("Invalid action");
 

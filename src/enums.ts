@@ -3,9 +3,3 @@ export enum ActionName {
   SEND_MESSAGE = "Send Message",
   VISIT = "Visit",
 }
-
-export enum User {
-  WAALAXY = "Waalaxy",
-  SAMIR = "Samir",
-  FABIEN = "Fabien",
-}

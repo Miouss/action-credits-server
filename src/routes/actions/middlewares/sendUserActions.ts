@@ -6,6 +6,6 @@ export async function sendUserActions(
   res: Response,
   __: NextFunction
 ) {
-  const userActions = await getUserActions(res.locals.username);
+  const userActions = await getUserActions();
   res.json(userActions);
 }
