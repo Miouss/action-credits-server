@@ -1,22 +1,23 @@
-import { ActionName } from "./enums";
+import { ActionName, ActionStatus } from "./enums";
 
 export interface Action {
   name: ActionName;
   credits: number;
 }
 
-/* type ActionStatus = "pending" | "completed";
-
-interface QueueItem {
+export interface QueueItem {
   name: ActionName;
   status: ActionStatus;
-} */
+}
+
+export interface Queue {
+  items: QueueItem[];
+  nextActionIndex: number;
+}
 
 export interface UserActions {
   actions: Action[];
-  queue: ActionName[];
-  /* queue: QueueItem[]; */
-  /* nextActionIndex: number; */
+  queue: Queue;
   id: string;
 }
 
@@ -28,8 +29,8 @@ export interface IUserActions {
     findByName: (actionName: ActionName) => Promise<Action | undefined>;
   };
   queue: {
-    get: () => Promise<ActionName[]>;
-    hasAny: (queue: ActionName[]) => boolean;
+    get: () => Promise<Queue>;
+    hasAny: (queue: Queue) => boolean;
     add: (actionName: ActionName) => Promise<void>;
     consumeAction: () => Promise<void>;
   };

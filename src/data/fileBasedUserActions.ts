@@ -1,17 +1,15 @@
 import jsonfile from "jsonfile";
-import { Action, UserActions, IUserActions } from "../types/types";
-import { ActionName } from "../types/enums";
+import { Action, UserActions, IUserActions, Queue } from "../types/types";
+import { ActionName, ActionStatus } from "../types/enums";
 import {
-  EXECUTION_INTERVAL,
   REFRESH_CREDITS_INTERVAL,
   DEFAULT_USER_ACTIONS,
   randomizeCredits,
   randomUUID,
 } from "../config";
 
-import Ajv, { JSONSchemaType } from "ajv";
 import { UserActionsFactory } from "./userActionsFactory";
-
+import { validateFile } from "./fileValidation";
 
 const USER_ACTIONS_FILE_PATH = "./src/data/user-actions.json";
 
@@ -27,7 +25,7 @@ export function FileBasedUserActions(): IUserActions {
     },
     queue: {
       get: async () => await getQueue(),
-      hasAny: (queue: ActionName[]) => hasAnyActionInQueue(queue),
+      hasAny: (queue: Queue) => hasAnyActionInQueue(queue),
       add: async (actionName: ActionName) => await addAction(actionName),
       consumeAction: async () => await consumeAction(),
     },
@@ -58,15 +56,17 @@ function createUsersActionsFile(userActions: UserActions) {
   return jsonfile.writeFile(USER_ACTIONS_FILE_PATH, userActions);
 }
 
-function hasAnyActionInQueue(queue: ActionName[]) {
-  return queue.length > 0;
+function hasAnyActionInQueue(queue: Queue) {
+  if (queue.items[queue.nextActionIndex] === undefined) return false;
+  return true;
 }
 
 async function consumeAction() {
   const userAction = await UserActionsFactory().get();
-  userAction.actions.find(({ name }) => name === userAction.queue[0])!
-    .credits--;
-  userAction.queue.shift();
+  userAction.queue.items[userAction.queue.nextActionIndex].status =
+    ActionStatus.COMPLETED;
+
+  userAction.queue.nextActionIndex = userAction.queue.nextActionIndex + 1;
 
   await UserActionsFactory().update(userAction);
 }
@@ -74,7 +74,10 @@ async function consumeAction() {
 async function addAction(actionName: ActionName) {
   const userActions = await UserActionsFactory().get();
 
-  userActions.queue.push(actionName);
+  userActions.queue.items.push({
+    name: actionName,
+    status: ActionStatus.PENDING,
+  });
 
   await UserActionsFactory().update(userActions);
 }
@@ -83,40 +86,6 @@ async function findActionByName(actionName: ActionName) {
   const userAction = await UserActionsFactory().get();
 
   return userAction.actions.find(({ name }) => name === actionName);
-}
-
-async function validateFile() {
-  const ajv = new Ajv();
-  const actionSchema: JSONSchemaType<Action> = {
-    type: "object",
-    properties: {
-      name: { type: "string", enum: Object.values(ActionName) },
-      credits: { type: "number" },
-    },
-    required: ["name", "credits"],
-    additionalProperties: false,
-  };
-
-  const schema: JSONSchemaType<UserActions> = {
-    type: "object",
-    properties: {
-      actions: { type: "array", items: actionSchema },
-      queue: {
-        type: "array",
-        items: { type: "string", enum: Object.values(ActionName) },
-      },
-      id: { type: "string" },
-    },
-    required: ["actions", "queue", "id"],
-    additionalProperties: false,
-  };
-
-  const validate = ajv.compile(schema);
-  const usersActions = await UserActionsFactory().get();
-
-  if (!validate(usersActions)) {
-    throw new Error();
-  }
 }
 
 export async function setupUsersActionsFile() {
@@ -168,12 +137,4 @@ function hasUsedCredits(
     JSON.stringify(orignalUserActions.actions) !==
     JSON.stringify(userActions.actions)
   );
-}
-
-export function executeActionEachInterval() {
-  return setInterval(async () => {
-    const queue = await UserActionsFactory().queue.get();
-    if (!UserActionsFactory().queue.hasAny(queue)) return;
-    await UserActionsFactory().queue.consumeAction();
-  }, EXECUTION_INTERVAL);
 }

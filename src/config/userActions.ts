@@ -6,15 +6,16 @@ import { v4 as uuidv4 } from "uuid";
 
 export const USER_ACTIONS_FACTORY_TYPE: UserActionsFactoryType = "file";
 
-
-
 export const DEFAULT_ACTIONS: ActionName[] = Object.values(ActionName);
 export const DEFAULT_USER_ACTIONS: UserActions = {
   actions: DEFAULT_ACTIONS.map((name) => ({
     name,
     credits: randomizeCredits(),
   })),
-  queue: [],
+  queue: {
+    items: [],
+    nextActionIndex: 0,
+  },
   id: randomUUID(),
 };
 
