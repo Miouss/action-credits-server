@@ -125,8 +125,6 @@ export async function setupUsersActionsFile() {
     console.log("File is invalid, creating new file...");
     await createUsersActionsFile(DEFAULT_USER_ACTIONS);
     console.log("File created");
-  } finally {
-    executeActionEachInterval();
   }
 
   refreshCreditsDelay(await UserActionsFactory().get());
@@ -169,7 +167,7 @@ function hasUsedCredits(
   );
 }
 
-function executeActionEachInterval() {
+export function executeActionEachInterval() {
   return setInterval(async () => {
     const queue = await UserActionsFactory().queue.get();
     if (!UserActionsFactory().queue.hasAny(queue)) return;

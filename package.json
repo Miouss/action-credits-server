@@ -5,7 +5,9 @@
   "main": "index.ts",
   "type": "module",
   "scripts": {
-    "start": "nodemon --ignore src/data/user-actions.json -r dotenv/config src/index.ts"
+    "kill": "pm2 delete all",
+    "monitor": "pm2 monit",
+    "start": "pm2 start ecosystem.config.cjs"
   },
   "author": "",
   "license": "ISC",
@@ -24,6 +26,7 @@
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
     "jsonfile": "^6.1.0",
+    "pm2": "^5.3.0",
     "uuid": "^9.0.1"
   }
 }
