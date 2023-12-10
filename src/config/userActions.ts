@@ -1,4 +1,4 @@
-import { UserActionsFactoryType } from "../data/userActionsFactory";
+import { UserActionsFactoryType } from "../data";
 import { ActionName } from "../types/enums";
 import { UserActions } from "../types/types";
 import { randomizeCredits } from "./credits";

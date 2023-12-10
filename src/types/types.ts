@@ -22,6 +22,8 @@ export interface UserActions {
 }
 
 export interface IUserActions {
+  create: (userActions: UserActions) => Promise<void>;
+  init: () => Promise<void>;
   get: () => Promise<UserActions>;
   update: (userActions: UserActions) => Promise<void>;
   actions: {

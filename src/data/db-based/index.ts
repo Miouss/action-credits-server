@@ -1,7 +1,7 @@
-import { IUserActions } from "../types/types";
+import { IUserActions } from "../../types/types";
 
 export function DBBasedUserActions(): IUserActions {
-  // TODO: Implement this
+  // TODO: Implement
 
   throw new Error("Not implemented");
 }

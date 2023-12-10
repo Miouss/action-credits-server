@@ -2,7 +2,7 @@ import express, { Request, Response, NextFunction } from "express";
 import cors from "cors";
 
 import { userActions } from "./routes";
-import { setupUsersActionsFile } from "./data/fileBasedUserActions";
+import { UserActionsFactory } from "./data";
 
 export function initServer() {
   const app = express();
@@ -19,7 +19,8 @@ export function initServer() {
   });
 
   app.listen(PORT, () => {
-    setupUsersActionsFile();
+    console.log("Hello world");
+    UserActionsFactory().init();
     console.log(`listening on port ${PORT}`);
   });
 }

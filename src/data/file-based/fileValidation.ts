@@ -1,7 +1,7 @@
 import Ajv, { JSONSchemaType } from "ajv";
-import { ActionName, ActionStatus } from "../types/enums";
-import { Action, QueueItem, Queue, UserActions } from "../types/types";
-import { UserActionsFactory } from "./userActionsFactory";
+import { ActionName, ActionStatus } from "../../types/enums";
+import { Action, QueueItem, Queue, UserActions } from "../../types/types";
+import { UserActionsFactory } from "../";
 
 export async function validateFile() {
   const ajv = new Ajv();
