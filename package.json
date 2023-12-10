@@ -7,7 +7,9 @@
   "scripts": {
     "kill": "pm2 delete all",
     "monitor": "pm2 monit",
-    "start": "pm2 start ecosystem.config.cjs"
+    "clear": "pm2 flush server",
+    "start": "pm2 start ecosystem.config.cjs",
+    "logs": "pm2 logs "
   },
   "author": "",
   "license": "ISC",
