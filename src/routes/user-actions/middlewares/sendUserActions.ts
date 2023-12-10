@@ -6,8 +6,6 @@ export async function sendUserActions(
   res: Response,
   __: NextFunction
 ) {
-console.log("Hello world");
-
   const userActions = await UserActionsFactory().get();
   res.json(userActions);
 }
