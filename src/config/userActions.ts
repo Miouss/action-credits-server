@@ -1,9 +1,12 @@
+import { UserActionsFactoryType } from "../data/userActionsFactory";
 import { ActionName } from "../types/enums";
 import { UserActions } from "../types/types";
 import { randomizeCredits } from "./credits";
 import { v4 as uuidv4 } from "uuid";
 
-export const USER_ACTIONS_FILE_PATH = "./src/data/user-actions.json";
+export const USER_ACTIONS_FACTORY_TYPE: UserActionsFactoryType = "file";
+
+
 
 export const DEFAULT_ACTIONS: ActionName[] = Object.values(ActionName);
 export const DEFAULT_USER_ACTIONS: UserActions = {

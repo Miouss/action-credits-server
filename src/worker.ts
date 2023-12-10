@@ -1,3 +1,3 @@
-import { executeActionEachInterval } from "./data/utils";
+import { executeActionEachInterval } from "./data/fileBasedUserActions";
 
 executeActionEachInterval();

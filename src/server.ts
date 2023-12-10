@@ -2,7 +2,7 @@ import express, { Request, Response, NextFunction } from "express";
 import cors from "cors";
 
 import { userActions } from "./routes";
-import { setupUsersActionsFile } from "./data/utils";
+import { setupUsersActionsFile } from "./data/fileBasedUserActions";
 
 export function initServer() {
   const app = express();

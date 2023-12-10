@@ -1,8 +1,7 @@
 import jsonfile from "jsonfile";
-import { Action, UserActions } from "../types/types";
+import { Action, UserActions, IUserActions } from "../types/types";
 import { ActionName } from "../types/enums";
 import {
-  USER_ACTIONS_FILE_PATH,
   EXECUTION_INTERVAL,
   REFRESH_CREDITS_INTERVAL,
   DEFAULT_USER_ACTIONS,
@@ -11,8 +10,12 @@ import {
 } from "../config";
 
 import Ajv, { JSONSchemaType } from "ajv";
+import { UserActionsFactory } from "./userActionsFactory";
 
-export function UserActionsFactory() {
+
+const USER_ACTIONS_FILE_PATH = "./src/data/user-actions.json";
+
+export function FileBasedUserActions(): IUserActions {
   return {
     get: async () => await getUserActions(),
     update: async (userActions: UserActions) =>

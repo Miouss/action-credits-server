@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { UserActionsFactory } from "../../../data/utils";
+import { UserActionsFactory } from "../../../data";
 import { EXECUTION_INTERVAL, REFRESH_CREDITS_INTERVAL } from "../../../config";
 
 export async function sendUserActions(
