@@ -171,7 +171,7 @@ function hasUsedCredits(
 
 function executeActionEachInterval() {
   return setInterval(async () => {
-    const queue = await getQueue();
+    const queue = await UserActionsFactory().queue.get();
     if (!UserActionsFactory().queue.hasAny(queue)) return;
     await UserActionsFactory().queue.consumeAction();
   }, EXECUTION_INTERVAL);
