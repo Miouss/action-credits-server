@@ -11,6 +11,12 @@ export async function sendUserActions(
   const maxPendingActions = parseInt(req.query.maxPendingActions as string);
   const maxExecutedActions = parseInt(req.query.maxExecutedActions as string);
 
+  if (isNaN(maxPendingActions) || isNaN(maxExecutedActions))
+    throw new Error("Invalid query parameters");
+
+  if (maxPendingActions < 0 || maxExecutedActions < 0)
+    throw new Error("query parameters must be positive integers");
+
   const pendingActions = userActions.queue.items.slice(
     nextActionIndex,
     Math.min(
@@ -21,8 +27,7 @@ export async function sendUserActions(
 
   const executedActions = userActions.queue.items.slice(
     nextActionIndex -
-      maxExecutedActions -
-      (maxExecutedActions - pendingActions.length),
+      maxExecutedActions,
     nextActionIndex
   );
 
