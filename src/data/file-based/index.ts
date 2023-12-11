@@ -1,50 +1,33 @@
-import { DEFAULT_USER_ACTIONS } from "../../config";
-import { ActionName } from "../../types/enums";
-import { UserActions, Queue } from "../../types/types";
-import { IUserActions, UserActionsFactory } from "../";
-import {
-  findActionByName,
-  getActions,
-} from "./actions";
-import { getQueue, hasAnyActionInQueue, executeAction, addActionToQueue } from "./queue";
-import {
-  createUserActionsFile,
-  getUserActions,
-  updateUserActions,
-} from "./userActions";
+import { DEFAULT_ACTIONS, DEFAULT_QUEUE } from "../../config";
+import { Actions } from "../../types/types";
+import { IDataProvider, DataProviderFactory } from "../";
+import { getQueue, updateQueue } from "./queue";
 import { validateFile } from "./fileValidation";
+import { getActions, updateActions } from "./actions";
 
-export function FileBasedUserActions(): IUserActions {
+export function FileBasedUserActions(): IDataProvider {
   return {
-    create: async (userActions: UserActions) =>
-      await createUserActionsFile(userActions),
-    init: async () => await initUsersActionsFile(),
-    get: async () => await getUserActions(),
-    update: async (userActions: UserActions) =>
-      await updateUserActions(userActions),
+    init: async () => await seedData(),
     actions: {
       get: () => getActions(),
-      findByName: (userActions: UserActions, actionName: ActionName) =>
-        findActionByName(userActions, actionName),
+      update: (actions: Actions) => updateActions(actions),
     },
     queue: {
-      get: (userActions: UserActions) => getQueue(userActions),
-      hasAny: (queue: Queue) => hasAnyActionInQueue(queue),
-      add: async (actionName: ActionName) => await addActionToQueue(actionName),
-      executeAction: async (userActions: UserActions) =>
-        await executeAction(userActions),
+      get: () => getQueue(),
+      update: (queue) => updateQueue(queue),
     },
   };
 }
 
-async function initUsersActionsFile() {
+async function seedData() {
   try {
     console.log("Validating file...");
     await validateFile();
     console.log("File is valid, no need to create new file");
   } catch (err) {
     console.log("File is invalid, creating new file...");
-    await UserActionsFactory().create(DEFAULT_USER_ACTIONS);
+    await DataProviderFactory().actions.update(DEFAULT_ACTIONS);
+    await DataProviderFactory().queue.update(DEFAULT_QUEUE);
     console.log("File created");
   }
 }

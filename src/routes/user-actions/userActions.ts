@@ -1,6 +1,6 @@
 import { Router } from "express";
 import {
-  sendUserActions,
+  sendActions,
   verifyAction,
   addActionToQueue,
   sendRefreshInterval,
@@ -8,8 +8,8 @@ import {
 
 const userActions = Router();
 
-userActions.get("/", sendUserActions);
+userActions.get("/", sendActions);
 userActions.get("/refresh-interval", sendRefreshInterval);
-userActions.patch("/queue", verifyAction, addActionToQueue, sendUserActions);
+userActions.patch("/queue", verifyAction, addActionToQueue, sendActions);
 
 export { userActions };

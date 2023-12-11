@@ -11,7 +11,7 @@ module.exports = {
       ignore_watch: [
         "node_modules",
         "\\.git",
-        "./src/data/file-based/user-actions.json",
+        "./src/data/file-based/files/*.json",
       ],
       watch_options: {
         followSymlinks: false,
@@ -26,7 +26,7 @@ module.exports = {
       ignore_watch: [
         "node_modules",
         "\\.git",
-        "./src/data/file-based/user-actions.json",
+        "./src/data/file-based/files/*.json",
       ],
       watch_options: {
         followSymlinks: false,

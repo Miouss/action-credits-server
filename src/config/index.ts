@@ -1,3 +1,3 @@
 export * from "./credits";
-export * from "./userActions";
+export * from "./actions";
 export * from "./queue";

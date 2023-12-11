@@ -1,45 +1,12 @@
-import { Queue, UserActions } from "../../types/types";
-import { UserActionsFactory } from "../";
-import { ActionName, ActionStatus } from "../../types/enums";
+import { Queue } from "../../types/types";
+import jsonfile from "jsonfile";
 
-export async function addActionToQueue(actionName: ActionName) {
-  const userActions = await UserActionsFactory().get();
+const QUEUE_FILE_PATH = "./src/data/file-based/files/queue.json";
 
-  userActions.queue.items.push({
-    name: actionName,
-    status: ActionStatus.PENDING,
-  });
-
-  await UserActionsFactory().update(userActions);
+export async function getQueue(): Promise<Queue> {
+  return await jsonfile.readFile(QUEUE_FILE_PATH);
 }
 
-export function getQueue(userActions: UserActions) {
-  return userActions.queue;
-}
-
-export function hasAnyActionInQueue(queue: Queue) {
-  const { nextActionIndex } = queue;
-
-  if (queue.items[nextActionIndex]) return true;
-  return false;
-}
-
-export async function executeAction(userActions: UserActions) {
-  const action = userActions.queue.items[userActions.queue.nextActionIndex];
-  const userAction = UserActionsFactory().actions.findByName(
-    userActions,
-    action.name
-  );
-
-  const canExecuteAction = userAction.credits > 0;
-
-  if (!canExecuteAction) throw new Error("No credits left to execute action");
-
-  action.status = ActionStatus.COMPLETED;
-
-  userActions.queue.nextActionIndex++;
-
-  userAction.credits--;
-
-  await UserActionsFactory().update(userActions);
+export async function updateQueue(queue: Queue) {
+  return await jsonfile.writeFile(QUEUE_FILE_PATH, queue);
 }

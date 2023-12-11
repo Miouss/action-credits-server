@@ -1,7 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import { ActionName } from "../../../types/enums";
 import { Action } from "../../../types/types";
-import { UserActionsFactory } from "../../../data";
+import { DataProviderFactory } from "../../../data";
+import { findActionByName } from "../../../services/actions";
 
 export async function verifyAction(
   req: Request,
@@ -23,8 +24,8 @@ export async function verifyAction(
 }
 
 async function verifyValidAction(actionName: ActionName) {
-  const userActions = await UserActionsFactory().get();
-  const validAction = UserActionsFactory().actions.findByName(userActions, actionName);
+  const actions = await DataProviderFactory().actions.get();
+  const validAction = findActionByName(actions, actionName);
 
   if (!validAction) throw new Error("Invalid action");
 

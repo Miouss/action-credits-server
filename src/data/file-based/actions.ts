@@ -1,16 +1,12 @@
-import { ActionName } from "../../types/enums";
-import { Action, UserActions } from "../../types/types";
-import { UserActionsFactory } from "../";
+import { Actions } from "../../types/types";
+import jsonfile from "jsonfile";
 
-export function findActionByName(
-  userActions: UserActions,
-  actionName: ActionName
-) {
-  return userActions.actions.find(({ name }) => name === actionName)!;
+const ACTIONS_FILE_PATH = "./src/data/file-based/files/actions.json";
+
+export async function getActions(): Promise<Actions> {
+  return await jsonfile.readFile(ACTIONS_FILE_PATH);
 }
 
-export async function getActions(): Promise<Action[]> {
-  const userActions = await UserActionsFactory().get();
-
-  return userActions.actions;
+export async function updateActions(actions: Actions): Promise<void> {
+  return await jsonfile.writeFile(ACTIONS_FILE_PATH, actions);
 }

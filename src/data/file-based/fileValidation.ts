@@ -1,10 +1,11 @@
-import Ajv, { JSONSchemaType } from "ajv";
+/* import Ajv, { JSONSchemaType } from "ajv";
 import { ActionName, ActionStatus } from "../../types/enums";
 import { Action, QueueItem, Queue, UserActions } from "../../types/types";
-import { UserActionsFactory } from "../";
+import { DataProviderFactory } from "../"; */
 
 export async function validateFile() {
-  const ajv = new Ajv();
+  throw new Error("Not implemented");
+/*   const ajv = new Ajv();
   const actionSchema: JSONSchemaType<Action> = {
     type: "object",
     properties: {
@@ -47,9 +48,9 @@ export async function validateFile() {
   };
 
   const validate = ajv.compile(schema);
-  const usersActions = await UserActionsFactory().get();
+  const usersActions = await DataProviderFactory().get();
 
   if (!validate(usersActions)) {
     throw new Error();
-  }
+  } */
 }

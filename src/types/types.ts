@@ -5,6 +5,11 @@ export interface Action {
   credits: number;
 }
 
+export interface Actions {
+  items: Action[];
+  id: string;
+}
+
 export interface QueueItem {
   name: ActionName;
   status: ActionStatus;
@@ -16,7 +21,7 @@ export interface Queue {
 }
 
 export interface UserActions {
-  actions: Action[];
+  actions: Actions;
   queue: Queue;
   id: string;
 }

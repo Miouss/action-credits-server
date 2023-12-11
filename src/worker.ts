@@ -1,22 +1,17 @@
 import { EXECUTION_INTERVAL } from "./config";
-import { UserActionsFactory } from "./data";
+import { DataProviderFactory } from "./data";
+import { executeAction } from "./services/queue";
 import { refreshCreditsDelay } from "./utils/creditsHandler";
 
-await UserActionsFactory().init();
+await DataProviderFactory().init();
 
-refreshCreditsDelay(await UserActionsFactory().get());
+refreshCreditsDelay(await DataProviderFactory().actions.get());
 executeActionEachInterval();
 
 function executeActionEachInterval() {
   return setInterval(async () => {
     try {
-      const userActions = await UserActionsFactory().get();
-
-      if (!UserActionsFactory().queue.hasAny(userActions.queue))
-        throw new Error("No action to execute");
-
-      await UserActionsFactory().queue.executeAction(userActions);
-      console.log("Action executed");
+      await executeAction();
     } catch (err: any) {
       console.log(err.message);
     }

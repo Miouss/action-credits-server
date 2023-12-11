@@ -1,13 +1,12 @@
-import { USER_ACTIONS_FACTORY_TYPE } from "../config";
-import { ActionName } from "../types/enums";
-import { UserActions, Action, Queue } from "../types/types";
+import { DATA_PROVIDER_TYPE } from "../config";
+import { Queue, Actions } from "../types/types";
 import { DBBasedUserActions } from "./db-based";
 import { FileBasedUserActions } from "./file-based";
 
-export type UserActionsFactoryType = "file" | "db";
+export type DataProviderType = "file" | "db";
 
-export function UserActionsFactory(): IUserActions {
-  switch (USER_ACTIONS_FACTORY_TYPE) {
+export function DataProviderFactory(): IDataProvider {
+  switch (DATA_PROVIDER_TYPE) {
     case "file":
       return FileBasedUserActions();
     case "db":
@@ -17,19 +16,14 @@ export function UserActionsFactory(): IUserActions {
   }
 }
 
-export interface IUserActions {
-  create: (userActions: UserActions) => Promise<void>;
+export interface IDataProvider {
   init: () => Promise<void>;
-  get: () => Promise<UserActions>;
-  update: (userActions: UserActions) => Promise<void>;
   actions: {
-    get: () => Promise<Action[]>;
-    findByName: (userActions: UserActions, actionName: ActionName) => Action;
+    get: () => Promise<Actions>;
+    update: (actions: Actions) => Promise<void>;
   };
   queue: {
-    get: (userActions: UserActions) => Queue;
-    hasAny: (queue: Queue) => boolean;
-    add: (actionName: ActionName) => Promise<void>;
-    executeAction: (userActions: UserActions) => Promise<void>;
+    get: () => Promise<Queue>;
+    update: (queue: Queue) => Promise<void>;
   };
 }
