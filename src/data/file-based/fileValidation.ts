@@ -29,15 +29,11 @@ export async function validateFile() {
     properties: {
       items: {
         type: "array",
-        items: {
-          type: "array",
-          items: queueItemsSchema,
-        },
+        items: queueItemsSchema,
       },
       nextActionIndex: { type: "number" },
-      nextActionPageIndex: { type: "number" },
     },
-    required: ["items", "nextActionIndex", "nextActionPageIndex"],
+    required: ["items", "nextActionIndex"],
   };
 
   const schema: JSONSchemaType<UserActions> = {

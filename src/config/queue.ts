@@ -1,2 +1,3 @@
 export const EXECUTION_INTERVAL = 3000; // ms
-export const NB_ACTION_BY_QUEUE_PAGE = 3;
+export const QUEUE_PENDING_ACTION_LIMIT = 3;
+export const QUEUE_EXECUTED_ACTION_LIMIT = 3;

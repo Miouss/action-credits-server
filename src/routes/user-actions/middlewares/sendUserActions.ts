@@ -1,31 +1,38 @@
 import { Request, Response, NextFunction } from "express";
 import { UserActionsFactory } from "../../../data";
-import { UserActions } from "../../../types/types";
 
 export async function sendUserActions(
-  _: Request,
+  req: Request,
   res: Response,
   __: NextFunction
 ) {
   const userActions = await UserActionsFactory().get();
+  const { nextActionIndex } = userActions.queue;
+  const maxPendingActions = parseInt(req.query.maxPendingActions as string);
+  const maxExecutedActions = parseInt(req.query.maxExecutedActions as string);
 
-  userActions.queue.items = filteredQueue(userActions);
+  const pendingActions = userActions.queue.items.slice(
+    nextActionIndex,
+    Math.min(
+      nextActionIndex + maxPendingActions,
+      userActions.queue.items.length
+    )
+  );
 
-  res.json(userActions);
-}
+  const executedActions = userActions.queue.items.slice(
+    nextActionIndex -
+      maxExecutedActions -
+      (maxExecutedActions - pendingActions.length),
+    nextActionIndex
+  );
 
+  const nbActionsLeft =
+    userActions.queue.items.length - pendingActions.length - nextActionIndex;
 
-// return all queue page starting from the previous page of the action that will be executed
-function filteredQueue(userActions: UserActions) {
-  let filteredQueue = [];
+  userActions.queue.items = [...executedActions, ...pendingActions];
 
-  for (
-    let i = Math.max(0, userActions.queue.nextActionPageIndex - 1);
-    i < userActions.queue.items.length;
-    i++
-  ) {
-    filteredQueue.push(userActions.queue.items[i]);
-  }
-
-  return filteredQueue;
+  res.json({
+    userActions,
+    nbActionsLeft,
+  });
 }
