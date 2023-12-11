@@ -1,12 +1,10 @@
 import { Actions, Queue } from "../../types/types";
 import { IDataProvider, DataProviderFactory } from "../";
-import { getQueue, getQueueFiltered, updateQueue } from "./queue";
+import { getQueue, updateQueue } from "./queue";
 import { fileValidationHandler } from "./fileValidator";
 import { getActions, updateActions } from "./actions";
 import { ActionName } from "../../types/enums";
 import { randomUUID, randomizeCredits } from "../../services/actions";
-
-
 
 const DEFAULT_QUEUE: Queue = {
   items: [],
@@ -32,10 +30,6 @@ export function FileBasedProvider(): IDataProvider {
     },
     queue: {
       get: () => getQueue(),
-      getFiltered: async (
-        maxPendingActions: number,
-        maxExecutedActions: number
-      ) => await getQueueFiltered(maxPendingActions, maxExecutedActions),
       update: (queue) => updateQueue(queue),
     },
   };

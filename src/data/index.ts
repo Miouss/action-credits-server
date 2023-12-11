@@ -1,5 +1,5 @@
 import { DATA_PROVIDER_TYPE } from "../config";
-import { Queue, Actions, QueueFiltered } from "../types/types";
+import { Queue, Actions } from "../types/types";
 import { DBBasedProvider } from "./db-based";
 import { FileBasedProvider } from "./file-based";
 
@@ -24,10 +24,6 @@ export interface IDataProvider {
   };
   queue: {
     get: () => Promise<Queue>;
-    getFiltered: (
-      maxPendingActions: number,
-      maxExecutedActions: number
-    ) => Promise<QueueFiltered>;
     update: (queue: Queue) => Promise<void>;
   };
 }

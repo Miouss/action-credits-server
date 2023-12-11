@@ -17,7 +17,7 @@ export function executeActionEachInterval() {
 async function executeAction() {
   const queue = await DataProviderFactory().queue.get();
 
-  if (!hasAnyActionInQueue(queue)) return console.log("No actions to execute");
+  if (!hasAnyActionInQueue(queue)) return console.log("No action to execute");
 
   const actions = await DataProviderFactory().actions.get();
 
@@ -37,5 +37,5 @@ async function executeAction() {
   await DataProviderFactory().actions.update(actions);
   await DataProviderFactory().queue.update(queue);
 
-  console.log(`Action ${actionToExecute.name} executed`);
+  console.log(`Action '${actionToExecute.name}' executed`);
 }
