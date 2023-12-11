@@ -11,29 +11,13 @@ export interface QueueItem {
 }
 
 export interface Queue {
-  items: QueueItem[];
+  items: QueueItem[][];
   nextActionIndex: number;
+  nextActionPageIndex: number;
 }
 
 export interface UserActions {
   actions: Action[];
   queue: Queue;
   id: string;
-}
-
-export interface IUserActions {
-  create: (userActions: UserActions) => Promise<void>;
-  init: () => Promise<void>;
-  get: () => Promise<UserActions>;
-  update: (userActions: UserActions) => Promise<void>;
-  actions: {
-    get: () => Promise<Action[]>;
-    findByName: (actionName: ActionName) => Promise<Action | undefined>;
-  };
-  queue: {
-    get: () => Promise<Queue>;
-    hasAny: (queue: Queue) => boolean;
-    add: (actionName: ActionName) => Promise<void>;
-    consumeAction: () => Promise<void>;
-  };
 }

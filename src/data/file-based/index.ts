@@ -1,16 +1,14 @@
 import { DEFAULT_USER_ACTIONS } from "../../config";
 import { ActionName } from "../../types/enums";
-import { IUserActions, UserActions, Queue } from "../../types/types";
+import { UserActions, Queue } from "../../types/types";
 import { refreshCreditsDelay } from "../../utils/creditsHandler";
 import { validateFile } from "./fileValidation";
-import { UserActionsFactory } from "../";
+import { IUserActions, UserActionsFactory } from "../";
 import {
   findActionByName,
-  addAction,
-  consumeAction,
   getActions,
 } from "./actions";
-import { getQueue, hasAnyActionInQueue } from "./queue";
+import { getQueue, hasAnyActionInQueue, executeAction, addActionToQueue } from "./queue";
 import {
   createUserActionsFile,
   getUserActions,
@@ -27,14 +25,15 @@ export function FileBasedUserActions(): IUserActions {
       await updateUserActions(userActions),
     actions: {
       get: () => getActions(),
-      findByName: async (actionName: ActionName) =>
-        await findActionByName(actionName),
+      findByName: (userActions: UserActions, actionName: ActionName) =>
+        findActionByName(userActions, actionName),
     },
     queue: {
-      get: async () => await getQueue(),
+      get: (userActions: UserActions) => getQueue(userActions),
       hasAny: (queue: Queue) => hasAnyActionInQueue(queue),
-      add: async (actionName: ActionName) => await addAction(actionName),
-      consumeAction: async () => await consumeAction(),
+      add: async (actionName: ActionName) => await addActionToQueue(actionName),
+      executeAction: async (userActions: UserActions) =>
+        await executeAction(userActions),
     },
   };
 }

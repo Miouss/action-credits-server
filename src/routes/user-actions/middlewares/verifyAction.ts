@@ -23,7 +23,8 @@ export async function verifyAction(
 }
 
 async function verifyValidAction(actionName: ActionName) {
-  const validAction = await UserActionsFactory().actions.findByName(actionName);
+  const userActions = await UserActionsFactory().get();
+  const validAction = UserActionsFactory().actions.findByName(userActions, actionName);
 
   if (!validAction) throw new Error("Invalid action");
 

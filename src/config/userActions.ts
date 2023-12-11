@@ -15,6 +15,7 @@ export const DEFAULT_USER_ACTIONS: UserActions = {
   queue: {
     items: [],
     nextActionIndex: 0,
+    nextActionPageIndex: 0,
   },
   id: randomUUID(),
 };

@@ -27,10 +27,17 @@ export async function validateFile() {
   const queueSchema: JSONSchemaType<Queue> = {
     type: "object",
     properties: {
-      items: { type: "array", items: queueItemsSchema },
+      items: {
+        type: "array",
+        items: {
+          type: "array",
+          items: queueItemsSchema,
+        },
+      },
       nextActionIndex: { type: "number" },
+      nextActionPageIndex: { type: "number" },
     },
-    required: ["items", "nextActionIndex"],
+    required: ["items", "nextActionIndex", "nextActionPageIndex"],
   };
 
   const schema: JSONSchemaType<UserActions> = {

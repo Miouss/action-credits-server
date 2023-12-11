@@ -19,7 +19,6 @@ export function initServer() {
   });
 
   app.listen(PORT, () => {
-    console.log("Hello world");
     UserActionsFactory().init();
     console.log(`listening on port ${PORT}`);
   });

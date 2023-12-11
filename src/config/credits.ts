@@ -2,7 +2,7 @@ export const CREDITS = 100;
 export const MAX_CREDITS_PERCENT = 100;
 export const MIN_CREDITS_PERCENT = 80;
 
-export const REFRESH_CREDITS_INTERVAL = 15000; // ms
+export const REFRESH_CREDITS_INTERVAL = 150000; // ms
 
 export function randomizeCredits(
   value: number = CREDITS,

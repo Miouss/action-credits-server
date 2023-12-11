@@ -3,9 +3,17 @@ import { UserActionsFactory } from "./data";
 
 function executeActionEachInterval() {
   return setInterval(async () => {
-    const queue = await UserActionsFactory().queue.get();
-    if (!UserActionsFactory().queue.hasAny(queue)) return;
-    await UserActionsFactory().queue.consumeAction();
+    try {
+      const userActions = await UserActionsFactory().get();
+
+      if (!UserActionsFactory().queue.hasAny(userActions.queue))
+        throw new Error("No action to execute");
+
+      await UserActionsFactory().queue.executeAction(userActions);
+      console.log("Action executed");
+    } catch (err: any) {
+      console.log(err.message);
+    }
   }, EXECUTION_INTERVAL);
 }
 
