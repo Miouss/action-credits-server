@@ -30,8 +30,6 @@ export async function findValidAction(actionName: ActionName) {
   return validAction;
 }
 
-
-
 export function filterQueue(
   queue: Queue,
   maxPendingActions: number,
@@ -44,42 +42,37 @@ export function filterQueue(
     Math.min(nextActionIndex + maxPendingActions, queue.items.length)
   );
 
-  let executedActions = queue.items.slice(
-    Math.max(0, nextActionIndex - maxExecutedActions),
-    nextActionIndex
-  );
+  // This part rework the filter to display the minimum number of the total actions required to display in the UI
+  // by having more executed actions if the number of pending actions is too low
 
-  let nbActionsDone = nextActionIndex - executedActions.length;
+  const minActionsDisplayed = maxPendingActions + maxExecutedActions;
+  const nbActionPending = pendingActions.length;
+
+  let enhanceFilter = false;
+
+  if (nbActionPending < minActionsDisplayed) {
+    enhanceFilter = true;
+  }
+
+  const startIndex = enhanceFilter
+    ? Math.max(
+        0,
+        nextActionIndex -
+          maxExecutedActions -
+          (minActionsDisplayed - nbActionPending) +
+          1
+      )
+    : Math.max(0, nextActionIndex - maxExecutedActions);
+  // End of the rework
+
+  const executedActions = queue.items.slice(startIndex, nextActionIndex);
 
   const nbActionsLeft =
     queue.items.length - pendingActions.length - nextActionIndex;
 
-  // This part rework the filter to display the minimum number of the total actions required to display in the UI
-  // by adding more executed actions if the number of pending actions is too low
-  const minActionsDisplayed = maxPendingActions + maxExecutedActions;
-  const nbActionPending = pendingActions.length;
-
-  if (nbActionPending < minActionsDisplayed) {
-    const startIndex = Math.max(
-      0,
-      nextActionIndex -
-        maxExecutedActions -
-        (minActionsDisplayed - nbActionPending) +
-        1
-    );
-
-    nbActionsDone -= minActionsDisplayed - nbActionPending - 1;
-    executedActions = [
-      ...queue.items.slice(
-        startIndex,
-        startIndex + (minActionsDisplayed - nbActionPending) - 1
-      ),
-      ...executedActions,
-    ];
-  }
-  // End of the rework
-
   queue.items = [...executedActions, ...pendingActions];
+
+  const nbActionsDone = nextActionIndex - executedActions.length;
 
   return {
     items: queue.items,
