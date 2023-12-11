@@ -5,7 +5,7 @@ module.exports = {
     {
       name: "server",
       script: "node",
-      args: "--experimental-specifier-resolution=node --loader ts-node/esm ./src/index.ts",
+      args: "--experimental-specifier-resolution=node --loader ts-node/esm ./src/api/index.ts",
       autorestart: false,
       watch: ["./"],
       ignore_watch: [
@@ -20,7 +20,7 @@ module.exports = {
     {
       name: "worker",
       script: "node",
-      args: "--experimental-specifier-resolution=node --loader ts-node/esm ./src/worker.ts",
+      args: "--experimental-specifier-resolution=node --loader ts-node/esm ./src/workers/index.ts",
       autorestart: false,
       watch: ["./"],
       ignore_watch: [

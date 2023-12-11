@@ -15,6 +15,11 @@ export interface QueueItem {
   status: ActionStatus;
 }
 
+export interface QueueFiltered {
+  items: QueueItem[];
+  nbActionsLeft: number;
+}
+
 export interface Queue {
   items: QueueItem[];
   nextActionIndex: number;

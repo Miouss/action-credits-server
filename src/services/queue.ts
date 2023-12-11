@@ -21,28 +21,12 @@ export function hasAnyActionInQueue(queue: Queue) {
   return false;
 }
 
-export async function executeAction() {
-  const queue = await DataProviderFactory().queue.get();
-  
-  if (!hasAnyActionInQueue(queue)) return console.log("No actions to execute");
-  
+export async function findValidAction(actionName: ActionName) {
   const actions = await DataProviderFactory().actions.get();
-  
-  const queueActionToExecute = queue.items[queue.nextActionIndex];
-  const actionToExecute = findActionByName(actions, queueActionToExecute.name);
+  const validAction = findActionByName(actions, actionName);
 
-  const canExecuteAction = actionToExecute.credits > 0;
+  if (!validAction) throw new Error("Invalid action");
 
-  if (!canExecuteAction) throw new Error("No credits left to execute action");
-
-  queueActionToExecute.status = ActionStatus.COMPLETED;
-
-  queue.nextActionIndex++;
-
-  actionToExecute.credits--;
-
-  await DataProviderFactory().actions.update(actions);
-  await DataProviderFactory().queue.update(queue);
-
-  console.log(`Action ${actionToExecute.name} executed`);
+  return validAction;
 }
+

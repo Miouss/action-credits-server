@@ -1,7 +1,7 @@
 import { DEFAULT_ACTIONS, DEFAULT_QUEUE } from "../../config";
 import { Actions } from "../../types/types";
 import { IDataProvider, DataProviderFactory } from "../";
-import { getQueue, updateQueue } from "./queue";
+import { getQueue, getQueueFiltered, updateQueue } from "./queue";
 import { validateFile } from "./fileValidation";
 import { getActions, updateActions } from "./actions";
 
@@ -14,6 +14,10 @@ export function FileBasedUserActions(): IDataProvider {
     },
     queue: {
       get: () => getQueue(),
+      getFiltered: async (
+        maxPendingActions: number,
+        maxExecutedActions: number
+      ) => await getQueueFiltered(maxPendingActions, maxExecutedActions),
       update: (queue) => updateQueue(queue),
     },
   };
