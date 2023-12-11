@@ -8,7 +8,7 @@ import {
 
 const userActions = Router();
 
-userActions.post("/", sendUserActions);
+userActions.get("/", sendUserActions);
 userActions.get("/refresh-interval", sendRefreshInterval);
 userActions.patch("/queue", verifyAction, addActionToQueue, sendUserActions);
 
