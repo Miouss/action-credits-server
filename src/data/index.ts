@@ -1,18 +1,18 @@
 import { DATA_PROVIDER_TYPE } from "../config";
 import { Queue, Actions, QueueFiltered } from "../types/types";
-import { DBBasedUserActions } from "./db-based";
-import { FileBasedUserActions } from "./file-based";
+import { DBBasedProvider } from "./db-based";
+import { FileBasedProvider } from "./file-based";
 
 export type DataProviderType = "file" | "db";
 
 export function DataProviderFactory(): IDataProvider {
   switch (DATA_PROVIDER_TYPE) {
     case "file":
-      return FileBasedUserActions();
+      return FileBasedProvider();
     case "db":
-      return DBBasedUserActions();
+      return DBBasedProvider();
     default:
-      throw new Error("Invalid user actions");
+      throw new Error("Invalid provider type");
   }
 }
 

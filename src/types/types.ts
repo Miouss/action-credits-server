@@ -25,8 +25,3 @@ export interface Queue {
   nextActionIndex: number;
 }
 
-export interface UserActions {
-  actions: Actions;
-  queue: Queue;
-  id: string;
-}

@@ -1,5 +1,5 @@
 import { ActionName } from "../types/enums";
-import { Action, Actions, UserActions } from "../types/types";
+import { Action, Actions } from "../types/types";
 import { v4 as uuidv4 } from "uuid";
 
 const CREDITS = 100;
@@ -10,14 +10,8 @@ export function findActionByName(actions: Actions, actionName: ActionName) {
   return actions.items.find(({ name }) => name === actionName)!;
 }
 
-export function hasUsedCredits(
-  userActions: UserActions,
-  orignalUserActions: UserActions
-) {
-  return (
-    JSON.stringify(orignalUserActions.actions) !==
-    JSON.stringify(userActions.actions)
-  );
+export function hasUsedCredits(actions: Actions, orignalActions: Actions) {
+  return JSON.stringify(orignalActions.items) !== JSON.stringify(actions.items);
 }
 
 export function verifyCredits(action: Action) {
@@ -36,7 +30,6 @@ export function randomizeCredits(
 
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
-
 
 export function randomUUID() {
   return uuidv4();

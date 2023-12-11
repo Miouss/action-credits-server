@@ -1,1 +1,0 @@
-export const REFRESH_CREDITS_INTERVAL = 150000; // ms

@@ -1,11 +1,29 @@
-import { DEFAULT_ACTIONS, DEFAULT_QUEUE } from "../../config";
-import { Actions } from "../../types/types";
+import { Actions, Queue } from "../../types/types";
 import { IDataProvider, DataProviderFactory } from "../";
 import { getQueue, getQueueFiltered, updateQueue } from "./queue";
-import { validateFile } from "./fileValidation";
+import { fileValidationHandler } from "./fileValidator";
 import { getActions, updateActions } from "./actions";
+import { ActionName } from "../../types/enums";
+import { randomUUID, randomizeCredits } from "../../services/actions";
 
-export function FileBasedUserActions(): IDataProvider {
+
+
+const DEFAULT_QUEUE: Queue = {
+  items: [],
+  nextActionIndex: 0,
+};
+
+const DEFAULT_ACTIONS_NAME: ActionName[] = Object.values(ActionName);
+
+const DEFAULT_ACTIONS: Actions = {
+  items: DEFAULT_ACTIONS_NAME.map((name) => ({
+    name,
+    credits: randomizeCredits(),
+  })),
+  id: randomUUID(),
+};
+
+export function FileBasedProvider(): IDataProvider {
   return {
     init: async () => await seedData(),
     actions: {
@@ -24,14 +42,16 @@ export function FileBasedUserActions(): IDataProvider {
 }
 
 async function seedData() {
-  try {
-    console.log("Validating file...");
-    await validateFile();
-    console.log("File is valid, no need to create new file");
-  } catch (err) {
-    console.log("File is invalid, creating new file...");
-    await DataProviderFactory().actions.update(DEFAULT_ACTIONS);
-    await DataProviderFactory().queue.update(DEFAULT_QUEUE);
-    console.log("File created");
-  }
+  await Promise.all([
+    fileValidationHandler(
+      "actions",
+      DataProviderFactory().actions.update,
+      DEFAULT_ACTIONS
+    ),
+    fileValidationHandler(
+      "queue",
+      DataProviderFactory().queue.update,
+      DEFAULT_QUEUE
+    ),
+  ]);
 }

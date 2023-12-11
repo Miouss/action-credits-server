@@ -1,6 +1,6 @@
 import { IDataProvider } from "..";
 
-export function DBBasedUserActions(): IDataProvider {
+export function DBBasedProvider(): IDataProvider {
   // TODO: Implement
 
   throw new Error("Not implemented");
