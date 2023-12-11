@@ -1,5 +1,11 @@
 import { EXECUTION_INTERVAL } from "./config";
 import { UserActionsFactory } from "./data";
+import { refreshCreditsDelay } from "./utils/creditsHandler";
+
+await UserActionsFactory().init();
+
+refreshCreditsDelay(await UserActionsFactory().get());
+executeActionEachInterval();
 
 function executeActionEachInterval() {
   return setInterval(async () => {
@@ -16,5 +22,3 @@ function executeActionEachInterval() {
     }
   }, EXECUTION_INTERVAL);
 }
-
-executeActionEachInterval();

@@ -1,8 +1,6 @@
 import { DEFAULT_USER_ACTIONS } from "../../config";
 import { ActionName } from "../../types/enums";
 import { UserActions, Queue } from "../../types/types";
-import { refreshCreditsDelay } from "../../utils/creditsHandler";
-import { validateFile } from "./fileValidation";
 import { IUserActions, UserActionsFactory } from "../";
 import {
   findActionByName,
@@ -14,6 +12,7 @@ import {
   getUserActions,
   updateUserActions,
 } from "./userActions";
+import { validateFile } from "./fileValidation";
 
 export function FileBasedUserActions(): IUserActions {
   return {
@@ -38,7 +37,7 @@ export function FileBasedUserActions(): IUserActions {
   };
 }
 
-export async function initUsersActionsFile() {
+async function initUsersActionsFile() {
   try {
     console.log("Validating file...");
     await validateFile();
@@ -48,6 +47,4 @@ export async function initUsersActionsFile() {
     await UserActionsFactory().create(DEFAULT_USER_ACTIONS);
     console.log("File created");
   }
-
-  refreshCreditsDelay(await UserActionsFactory().get());
 }

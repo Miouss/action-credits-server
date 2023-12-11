@@ -2,7 +2,6 @@ import express, { Request, Response, NextFunction } from "express";
 import cors from "cors";
 
 import { userActions } from "./routes";
-import { UserActionsFactory } from "./data";
 
 export function initServer() {
   const app = express();
@@ -19,7 +18,6 @@ export function initServer() {
   });
 
   app.listen(PORT, () => {
-    UserActionsFactory().init();
     console.log(`listening on port ${PORT}`);
   });
 }
