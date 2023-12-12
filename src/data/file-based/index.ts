@@ -2,12 +2,12 @@ import { Actions, Queue } from "../../types/types";
 import { IDataProvider, DataProviderFactory } from "../";
 import {
   getQueue,
-  getQueueActionsByStatus as _getQueueActionsByStatus,
+  getQueueItemsByActionStatus as _getQueueItemsByActionStatus,
   updateQueue,
 } from "./queue";
 import { fileValidationHandler } from "./fileValidator";
 import { getActions, updateActions } from "./actions";
-import { ActionName } from "../../types/enums";
+import { ActionName, ActionStatus } from "../../types/enums";
 import { randomUUID, randomizeCredits } from "../../services/actions";
 
 const DEFAULT_QUEUE: Queue = {
@@ -34,11 +34,10 @@ export function FileBasedProvider(): IDataProvider {
     },
     queue: {
       get: () => getQueue(),
-      getQueueActionsByStatus: async (
+      getQueueItemsByActionStatus: async (
         count: number,
-        statuses: string[],
-        order: "asc" | "desc"
-      ) => await _getQueueActionsByStatus(count, statuses, order),
+        statuses: ActionStatus[]
+      ) => await _getQueueItemsByActionStatus(count, statuses),
 
       update: (queue) => updateQueue(queue),
     },

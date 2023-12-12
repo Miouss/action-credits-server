@@ -1,4 +1,9 @@
-import { Queue } from "../../types/types";
+import { ActionStatus } from "../../types/enums";
+import {
+  Queue,
+  QueueFilteredByActionStatus,
+  QueueItem,
+} from "../../types/types";
 import jsonfile from "jsonfile";
 
 const QUEUE_FILE_PATH = "./src/data/file-based/files/queue.json";
@@ -7,17 +12,37 @@ export async function getQueue(): Promise<Queue> {
   return await jsonfile.readFile(QUEUE_FILE_PATH);
 }
 
-export async function getQueueActionsByStatus(
+export async function getQueueItemsByActionStatus(
   count: number,
-  statuses: string[],
-  order: "asc" | "desc"
-) {
-  const filteredQueue = (await getQueue()).items.filter((action) =>
-    statuses.includes(action.status)
+  statuses: ActionStatus[]
+): Promise<QueueFilteredByActionStatus> {
+  const queue = await getQueue();
+
+  const filterByStatus = (status: ActionStatus) =>
+    queue.items.filter(({ status: itemStatus }) => itemStatus === status);
+
+  const executedItems = filterByStatus(ActionStatus.COMPLETED);
+  const pendingItems = filterByStatus(ActionStatus.PENDING);
+
+  const filterByName = (actionsStatus: ActionStatus, queueItems: QueueItem[]) =>
+    statuses.includes(actionsStatus) ? queueItems.map(({ name }) => name) : [];
+
+  const queueItemsExecuted = filterByName(
+    ActionStatus.COMPLETED,
+    executedItems
   );
-  // on veut les 10 prochaines actions en attente, et les 10 dernières actions exécutées
-  if (order === "asc") return filteredQueue.slice(0, count);
-  else return filteredQueue.slice(-count);
+  const queueItemsPending = filterByName(ActionStatus.PENDING, pendingItems);
+
+  return {
+    items: {
+      executed: statuses.includes(ActionStatus.COMPLETED)
+        ? queueItemsExecuted.slice(-count)
+        : [],
+      pending: statuses.includes(ActionStatus.PENDING)
+        ? queueItemsPending.slice(-count)
+        : [],
+    },
+  };
 }
 
 export async function updateQueue(queue: Queue) {

@@ -4,7 +4,7 @@ export enum ActionName {
   VISIT = "Visit",
 }
 
-export enum ActionStatus{
+export enum ActionStatus {
   PENDING = "pending",
-  COMPLETED = "completed"
-};
+  COMPLETED = "completed",
+}

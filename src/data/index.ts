@@ -1,5 +1,6 @@
 import { DATA_PROVIDER_TYPE } from "../config";
-import { Queue, Actions, QueueItem } from "../types/types";
+import { ActionStatus } from "../types/enums";
+import { Queue, Actions, QueueFilteredByActionStatus } from "../types/types";
 import { DBBasedProvider } from "./db-based";
 import { FileBasedProvider } from "./file-based";
 
@@ -24,11 +25,10 @@ export interface IDataProvider {
   };
   queue: {
     get: () => Promise<Queue>;
-    getQueueActionsByStatus: (
+    getQueueItemsByActionStatus: (
       count: number,
-      statuses: string[],
-      order: "asc" | "desc"
-    ) => Promise<QueueItem[]>;
+      statuses: ActionStatus[]
+    ) => Promise<QueueFilteredByActionStatus>;
     update: (queue: Queue) => Promise<void>;
   };
 }

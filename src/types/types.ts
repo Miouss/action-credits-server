@@ -26,3 +26,11 @@ export interface Queue {
   nextActionIndex: number;
 }
 
+export interface QueueItemsByActionStatus {
+  executed: ActionName[];
+  pending: ActionName[];
+}
+
+export interface QueueFilteredByActionStatus {
+  items: QueueItemsByActionStatus;
+}
