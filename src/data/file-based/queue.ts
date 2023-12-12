@@ -38,9 +38,7 @@ export async function getQueueItemsByActionStatus(
       executed: statuses.includes(ActionStatus.COMPLETED)
         ? queueItemsExecuted.slice(-count)
         : [],
-      pending: statuses.includes(ActionStatus.PENDING)
-        ? queueItemsPending.slice(-count)
-        : [],
+      pending: statuses.includes(ActionStatus.PENDING) ? queueItemsPending : [],
     },
     executedItemsHistory:
       executedItems.length - Math.min(count, executedItems.length),
