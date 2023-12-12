@@ -1,6 +1,10 @@
 import { Actions, Queue } from "../../types/types";
 import { IDataProvider, DataProviderFactory } from "../";
-import { getQueue, updateQueue } from "./queue";
+import {
+  getQueue,
+  getQueueActionsByStatus as _getQueueActionsByStatus,
+  updateQueue,
+} from "./queue";
 import { fileValidationHandler } from "./fileValidator";
 import { getActions, updateActions } from "./actions";
 import { ActionName } from "../../types/enums";
@@ -30,6 +34,12 @@ export function FileBasedProvider(): IDataProvider {
     },
     queue: {
       get: () => getQueue(),
+      getQueueActionsByStatus: async (
+        count: number,
+        statuses: string[],
+        order: "asc" | "desc"
+      ) => await _getQueueActionsByStatus(count, statuses, order),
+
       update: (queue) => updateQueue(queue),
     },
   };

@@ -1,5 +1,5 @@
 import { DATA_PROVIDER_TYPE } from "../config";
-import { Queue, Actions } from "../types/types";
+import { Queue, Actions, QueueItem } from "../types/types";
 import { DBBasedProvider } from "./db-based";
 import { FileBasedProvider } from "./file-based";
 
@@ -24,6 +24,11 @@ export interface IDataProvider {
   };
   queue: {
     get: () => Promise<Queue>;
+    getQueueActionsByStatus: (
+      count: number,
+      statuses: string[],
+      order: "asc" | "desc"
+    ) => Promise<QueueItem[]>;
     update: (queue: Queue) => Promise<void>;
   };
 }

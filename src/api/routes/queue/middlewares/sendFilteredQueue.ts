@@ -1,29 +1,23 @@
 import { Request, Response, NextFunction } from "express";
 import { DataProviderFactory } from "../../../../data";
-import { filterQueue } from "../../../../services/queue";
 
 export async function sendFilteredQueue(
   req: Request,
   res: Response,
   _: NextFunction
 ) {
-  const maxPendingActions = parseInt(req.query.maxPendingActions as string);
-  const maxExecutedActions = parseInt(req.query.maxExecutedActions as string);
-
-  if (isNaN(maxPendingActions) || isNaN(maxExecutedActions))
-    throw new Error("Invalid query parameters");
-
-  if (maxPendingActions < 0 || maxExecutedActions < 0 )
-    throw new Error("Invalid query parameters");
-
-  const queue = await DataProviderFactory().queue.get();
-
-  const filteredQueue = filterQueue(
-    queue,
-    maxPendingActions,
-    maxExecutedActions,
+  const statuses = req.query.statuses as string;
+  const count = parseInt(req.query.count as string);
+  const parsedStatuses = statuses ? statuses.split(",") : undefined;
+  const order = req.query.order as "asc" | "desc";
+  
+  const queue = await DataProviderFactory().queue.getQueueActionsByStatus(
+    count,
+    parsedStatuses!,
+    order
   );
 
-  
-  res.json(filteredQueue);
+  console.log("queue", queue);
+
+  res.json(queue);
 }
