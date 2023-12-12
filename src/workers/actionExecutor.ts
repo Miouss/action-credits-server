@@ -1,7 +1,9 @@
 import { EXECUTION_INTERVAL } from "../config";
 import { DataProviderFactory } from "../data";
-import { findActionByName } from "../services/actions";
-import { hasAnyActionInQueue } from "../services/queue";
+import {
+  findNextExecutableAction,
+  hasAnyActionInQueue,
+} from "../services/queue";
 import { ActionStatus } from "../types/enums";
 
 export function executeActionEachInterval() {
@@ -21,21 +23,23 @@ async function executeAction() {
 
   const actions = await DataProviderFactory().actions.get();
 
-  const queueActionToExecute = queue.items[queue.nextActionIndex];
-  const actionToExecute = findActionByName(actions, queueActionToExecute.name);
+  const data = findNextExecutableAction(actions, queue);
 
-  const canExecuteAction = actionToExecute.credits > 0;
+  if (!data) return console.log("No action eligible for execution");
 
-  if (!canExecuteAction) throw new Error("No credits left to execute action");
+  const { executableAction, queueActionToExecute, queueActionToExecuteIndex } =
+    data;
+
+  // do not move the pointer if we encountered unexecutable actions
+  if (queueActionToExecuteIndex === queue.nextActionIndex + 1) {
+    queue.nextActionIndex++;
+  }
 
   queueActionToExecute.status = ActionStatus.COMPLETED;
-
-  queue.nextActionIndex++;
-
-  actionToExecute.credits--;
+  executableAction.credits--;
 
   await DataProviderFactory().actions.update(actions);
   await DataProviderFactory().queue.update(queue);
 
-  console.log(`Action '${actionToExecute.name}' executed`);
+  console.log(`Action '${executableAction.name}' executed`);
 }

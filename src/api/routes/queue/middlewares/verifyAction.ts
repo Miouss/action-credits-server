@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { verifyCredits } from "../../../../services/actions";
-import { findValidAction } from "../../../../services/queue";
+import { verifyValidAction } from "../../../../services/queue";
 import { ActionName } from "../../../../types/enums";
 
 export async function verifyAction(
@@ -13,8 +12,7 @@ export async function verifyAction(
   };
 
   try {
-    const validAction = await findValidAction(actionName);
-    verifyCredits(validAction);
+    await verifyValidAction(actionName);
 
     next();
   } catch (err) {

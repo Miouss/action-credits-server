@@ -1,6 +1,6 @@
 import { DataProviderFactory } from "../data";
 import { ActionName, ActionStatus } from "../types/enums";
-import { Queue } from "../types/types";
+import { Actions, Queue } from "../types/types";
 import { findActionByName } from "./actions";
 
 export async function addActionToQueue(actionName: ActionName) {
@@ -21,7 +21,7 @@ export function hasAnyActionInQueue(queue: Queue) {
   return false;
 }
 
-export async function findValidAction(actionName: ActionName) {
+export async function verifyValidAction(actionName: ActionName) {
   const actions = await DataProviderFactory().actions.get();
   const validAction = findActionByName(actions, actionName);
 
@@ -79,4 +79,21 @@ export function filterQueue(
     nbActionsLeft,
     nbActionsDone,
   };
+}
+
+export function findNextExecutableAction(actions: Actions, queue: Queue) {
+  for (let i = queue.nextActionIndex; i < queue.items.length; i++) {
+    if (queue.items[i].status === ActionStatus.PENDING) {
+      const action = findActionByName(actions, queue.items[i].name);
+      if (!action || action.credits < 1) continue;
+
+      return {
+        queueActionToExecute: queue.items[i],
+        queueActionToExecuteIndex: i,
+        executableAction: action,
+      };
+    }
+  }
+
+  return null;
 }
