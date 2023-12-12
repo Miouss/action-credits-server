@@ -1,7 +1,7 @@
 import { Actions } from "../../types/types";
 import jsonfile from "jsonfile";
 
-const ACTIONS_FILE_PATH = "./src/data/file-based/files/actions.json";
+export const ACTIONS_FILE_PATH = "./src/data/file-based/files/actions.json";
 
 export async function getActions(): Promise<Actions> {
   return await jsonfile.readFile(ACTIONS_FILE_PATH);
