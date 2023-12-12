@@ -25,6 +25,12 @@ export function randomizeCredits(
   minPercent: number = MIN_CREDITS_PERCENT,
   maxPercent: number = MAX_CREDITS_PERCENT
 ) {
+  if (value <= 0) throw new Error("Value must be greater than 0");
+  if (minPercent < 0) throw new Error("Min percent must be greater or equal than 0");
+  if (maxPercent <= 0) throw new Error("Max percent must be greater than 0");
+  if (minPercent > 100 || maxPercent > 100) throw new Error("Percents cannot be greater than 100");
+  if (minPercent > maxPercent) throw new Error("Min percent cannot be greater than max percent");
+  
   const max = Math.floor(value * (maxPercent / 100));
   const min = Math.ceil(max * (minPercent / 100));
 
