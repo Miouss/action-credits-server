@@ -42,8 +42,10 @@ export async function getQueueItemsByActionStatus(
         ? queueItemsPending.slice(-count)
         : [],
     },
-    executedItemsHistory: executedItems.length - count,
-    pendingItemsHistory: pendingItems.length - count,
+    executedItemsHistory:
+      executedItems.length - Math.min(count, executedItems.length),
+    pendingItemsHistory:
+      pendingItems.length - Math.min(count, pendingItems.length),
   };
 }
 
