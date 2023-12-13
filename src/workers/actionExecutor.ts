@@ -30,13 +30,18 @@ async function executeAction() {
   const { executableAction, queueActionToExecute, queueActionToExecuteIndex } =
     data;
 
-  // do not move the pointer if we encountered unexecutable actions
-  if (queueActionToExecuteIndex === queue.nextActionIndex + 1) {
-    queue.nextActionIndex++;
+  const isNormalExecutionOrder =
+    queueActionToExecuteIndex === queue.nextActionIndex;
+
+  if (!isNormalExecutionOrder) {
+    // move the executed action after the previous last executed action to keep the executed actions in order
+    queue.items.splice(queueActionToExecuteIndex, 1);
+    queue.items.splice(queue.nextActionIndex, 0, queueActionToExecute);
   }
 
   queueActionToExecute.status = ActionStatus.COMPLETED;
   executableAction.credits--;
+  queue.nextActionIndex++;
 
   await DataProviderFactory().actions.update(actions);
   await DataProviderFactory().queue.update(queue);
