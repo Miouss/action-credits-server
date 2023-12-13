@@ -1,17 +1,29 @@
 import jsonfile from "jsonfile";
 import { ACTIONS_FILE_PATH, getActions, updateActions } from "./actions";
-import { ActionName } from "../../types/enums";
+import { ActionName, ActionStatus } from "../../types/enums";
+import { Queue } from "../../types/types";
 
 jest.mock("jsonfile");
 
 describe("actions", () => {
+  const queue: Queue = {
+    items: [
+      { name: ActionName.INVITE, status: ActionStatus.COMPLETED },
+      { name: ActionName.SEND_MESSAGE, status: ActionStatus.PENDING },
+    ],
+    nextActionIndex: 1,
+  };
+
+  (jsonfile.readFile as jest.Mock).mockReturnValue(queue);
+
   describe("getActions", () => {
-    it(`should call jsonfile.readFile with path ${ACTIONS_FILE_PATH}`, async () => {
+    it(`should call jsonfile.readFile with path ${ACTIONS_FILE_PATH} and return the queue`, async () => {
       // Act
-      await getActions();
+      const result = await getActions();
 
       // Assert
       expect(jsonfile.readFile).toHaveBeenCalledWith(ACTIONS_FILE_PATH);
+      expect(result).toBe(queue);
     });
   });
   describe("updateActions", () => {
