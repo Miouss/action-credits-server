@@ -53,5 +53,5 @@ export async function getQueueItemsByActionStatus(
 }
 
 export async function updateQueue(queue: Queue) {
-  return await jsonfile.writeFile(QUEUE_FILE_PATH, queue);
+  await jsonfile.writeFile(QUEUE_FILE_PATH, queue);
 }
