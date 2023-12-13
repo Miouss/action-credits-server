@@ -1,8 +1,5 @@
-import {  ActionStatus } from "../../types/enums";
-import {
-  Queue,
-  QueueByStatusWithExecutedHistory,
-} from "../../types/types";
+import { ActionStatus } from "../../types/enums";
+import { Queue, QueueByStatusWithExecutedHistory } from "../../types/types";
 import jsonfile from "jsonfile";
 
 export const QUEUE_FILE_PATH = "./src/data/file-based/files/queue.json";
@@ -17,18 +14,19 @@ export async function getQueueByStatus(
 ): Promise<QueueByStatusWithExecutedHistory> {
   const queue = await getQueue();
 
-  const pendingQueue = queue.pending;
-  const executedQueue = queue.executed.slice(-count);
+  const pendingQueue = statuses.includes(ActionStatus.PENDING)
+    ? queue.pending
+    : undefined;
+
+  const executedQueue = statuses.includes(ActionStatus.EXECUTED)
+    ? queue.executed.slice(-count)
+    : undefined;
 
   const executedItemsHistory = queue.executed.length - count;
   return {
     items: {
-      executed: statuses.includes(ActionStatus.EXECUTED)
-        ? executedQueue
-        : undefined,
-      pending: statuses.includes(ActionStatus.PENDING)
-        ? pendingQueue
-        : undefined,
+      executed: executedQueue,
+      pending: pendingQueue,
     },
     executedItemsHistory,
   };
