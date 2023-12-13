@@ -1,36 +1,29 @@
-const { watch } = require("fs");
+const commonConfig = {
+  autorestart: false,
+  watch: ["."],
+  ignore_watch: [
+    "node_modules",
+    "\\.git",
+    "./src/data/file-based/files/*.json",
+  ],
+  watch_options: {
+    followSymlinks: false,
+  },
+};
 
 module.exports = {
   apps: [
     {
+      ...commonConfig,
       name: "server",
       script: "node",
       args: "--experimental-specifier-resolution=node --loader ts-node/esm ./src/api/index.ts",
-      autorestart: false,
-      watch: ["./"],
-      ignore_watch: [
-        "node_modules",
-        "\\.git",
-        "./src/data/file-based/files/*.json",
-      ],
-      watch_options: {
-        followSymlinks: false,
-      },
     },
     {
+      ...commonConfig,
       name: "worker",
       script: "node",
       args: "--experimental-specifier-resolution=node --loader ts-node/esm ./src/workers/index.ts",
-      autorestart: false,
-      watch: ["./"],
-      ignore_watch: [
-        "node_modules",
-        "\\.git",
-        "./src/data/file-based/files/*.json",
-      ],
-      watch_options: {
-        followSymlinks: false,
-      },
     },
   ],
 };
