@@ -13,7 +13,7 @@ export async function sendFilteredQueue(
     ? (statuses.split(",") as ActionStatus[])
     : undefined;
 
-  const queue = await DataProviderFactory().queue.getQueueItemsByActionStatus(
+  const queue = await DataProviderFactory().queue.getQueueByStatus(
     count,
     parsedStatuses!
   );

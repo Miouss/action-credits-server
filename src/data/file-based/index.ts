@@ -2,7 +2,7 @@ import { Actions, Queue } from "../../types/types";
 import { IDataProvider, DataProviderFactory } from "../";
 import {
   getQueue,
-  getQueueItemsByActionStatus as _getQueueItemsByActionStatus,
+  getQueueByStatus as _getQueueByStatus,
   updateQueue,
 } from "./queue";
 import { fileValidationHandler } from "./fileValidator";
@@ -11,8 +11,8 @@ import { ActionName, ActionStatus } from "../../types/enums";
 import { randomUUID, randomizeCredits } from "../../services/actions";
 
 const DEFAULT_QUEUE: Queue = {
-  items: [],
-  nextActionIndex: 0,
+  pending: [],
+  executed: [],
 };
 
 const DEFAULT_ACTIONS_NAME: ActionName[] = Object.values(ActionName);
@@ -34,10 +34,8 @@ export function FileBasedProvider(): IDataProvider {
     },
     queue: {
       get: () => getQueue(),
-      getQueueItemsByActionStatus: async (
-        count: number,
-        statuses: ActionStatus[]
-      ) => await _getQueueItemsByActionStatus(count, statuses),
+      getQueueByStatus: async (count: number, statuses: ActionStatus[]) =>
+        await _getQueueByStatus(count, statuses),
 
       update: (queue) => updateQueue(queue),
     },

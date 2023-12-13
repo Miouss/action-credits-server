@@ -1,24 +1,18 @@
 import { DataProviderFactory } from "../data";
-import { ActionName, ActionStatus } from "../types/enums";
+import { ActionName } from "../types/enums";
 import { Actions, Queue } from "../types/types";
 import { findActionByName } from "./actions";
 
 export async function addActionToQueue(actionName: ActionName) {
   const queue = await DataProviderFactory().queue.get();
 
-  queue.items.push({
-    name: actionName,
-    status: ActionStatus.PENDING,
-  });
+  queue.pending.push(actionName);
 
   await DataProviderFactory().queue.update(queue);
 }
 
-export function hasAnyActionInQueue(queue: Queue) {
-  const { nextActionIndex } = queue;
-
-  if (queue.items[nextActionIndex]) return true;
-  return false;
+export function hasAnyActionInQueue(pendingQueue: Queue["pending"]) {
+  return pendingQueue.length > 0;
 }
 
 export async function verifyValidAction(actionName: ActionName) {
@@ -30,18 +24,18 @@ export async function verifyValidAction(actionName: ActionName) {
   return validAction;
 }
 
-export function findNextExecutableAction(actions: Actions, queue: Queue) {
-  for (let i = queue.nextActionIndex; i < queue.items.length; i++) {
-    if (queue.items[i].status === ActionStatus.PENDING) {
-      const action = findActionByName(actions, queue.items[i].name);
-      if (!action || action.credits < 1) continue;
+export function findNextExecutableAction(
+  actions: Actions,
+  pendingQueue: Queue["pending"]
+) {
+  for (let i = 0; i < pendingQueue.length; i++) {
+    const action = findActionByName(actions, pendingQueue[i]);
+    if (action.credits < 1) continue;
 
-      return {
-        queueActionToExecute: queue.items[i],
-        queueActionToExecuteIndex: i,
-        executableAction: action,
-      };
-    }
+    return {
+      queueActionToExecuteIndex: i,
+      executableAction: action,
+    };
   }
 
   return null;

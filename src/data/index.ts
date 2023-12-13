@@ -1,6 +1,10 @@
 import { DATA_PROVIDER_TYPE } from "../config";
 import { ActionStatus } from "../types/enums";
-import { Queue, Actions, QueueFilteredByActionStatus } from "../types/types";
+import {
+  Queue,
+  Actions,
+  QueueByStatusWithExecutedHistory,
+} from "../types/types";
 import { DBBasedProvider } from "./db-based";
 import { FileBasedProvider } from "./file-based";
 
@@ -25,10 +29,10 @@ export interface IDataProvider {
   };
   queue: {
     get: () => Promise<Queue>;
-    getQueueItemsByActionStatus: (
+    getQueueByStatus: (
       count: number,
       statuses: ActionStatus[]
-    ) => Promise<QueueFilteredByActionStatus>;
+    ) => Promise<QueueByStatusWithExecutedHistory>;
     update: (queue: Queue) => Promise<void>;
   };
 }

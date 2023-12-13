@@ -6,5 +6,5 @@ export enum ActionName {
 
 export enum ActionStatus {
   PENDING = "pending",
-  COMPLETED = "completed",
+  EXECUTED = "executed",
 }

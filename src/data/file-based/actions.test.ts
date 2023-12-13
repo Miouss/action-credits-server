@@ -1,17 +1,14 @@
 import jsonfile from "jsonfile";
 import { ACTIONS_FILE_PATH, getActions, updateActions } from "./actions";
-import { ActionName, ActionStatus } from "../../types/enums";
+import { ActionName } from "../../types/enums";
 import { Queue } from "../../types/types";
 
 jest.mock("jsonfile");
 
 describe("actions", () => {
   const queue: Queue = {
-    items: [
-      { name: ActionName.INVITE, status: ActionStatus.COMPLETED },
-      { name: ActionName.SEND_MESSAGE, status: ActionStatus.PENDING },
-    ],
-    nextActionIndex: 1,
+    pending: [ActionName.SEND_MESSAGE],
+    executed: [ActionName.INVITE],
   };
 
   (jsonfile.readFile as jest.Mock).mockReturnValue(queue);

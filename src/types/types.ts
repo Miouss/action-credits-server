@@ -1,4 +1,4 @@
-import { ActionName, ActionStatus } from "./enums";
+import { ActionName } from "./enums";
 
 export interface Action {
   name: ActionName;
@@ -10,28 +10,15 @@ export interface Actions {
   id: string;
 }
 
-export interface QueueItem {
-  name: ActionName;
-  status: ActionStatus;
-}
-
-export interface QueueFiltered {
-  items: QueueItem[];
-  nbActionsLeft: number;
-  nbActionsDone: number;
-}
-
 export interface Queue {
-  items: QueueItem[];
-  nextActionIndex: number;
+  executed: ActionName[];
+  pending: ActionName[];
 }
 
-export interface QueueItemsByActionStatus {
-  executed: ActionName[] | undefined;
-  pending: ActionName[] | undefined;
-}
-
-export interface QueueFilteredByActionStatus {
-  items: QueueItemsByActionStatus;
+export interface QueueByStatusWithExecutedHistory {
+  items: {
+    executed?: ActionName[];
+    pending?: ActionName[];
+  };
   executedItemsHistory: number;
 }

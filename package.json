@@ -6,6 +6,7 @@
   "type": "module",
   "scripts": {
     "test": "jest",
+    "watch": "jest --watch",
     "start": "pm2 flush && pm2 restart ecosystem.config.cjs && pm2 logs",
     "kill": "pm2 delete all",
     "monitor": "pm2 monit",

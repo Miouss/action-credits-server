@@ -1,6 +1,6 @@
 import Ajv, { JSONSchemaType } from "ajv";
-import { ActionName, ActionStatus } from "../../types/enums";
-import { Action, Actions, QueueItem, Queue } from "../../types/types";
+import { ActionName } from "../../types/enums";
+import { Action, Actions, Queue } from "../../types/types";
 import { DataProviderFactory } from "..";
 
 export function FileValidatorFactoryProvider() {
@@ -23,25 +23,21 @@ async function fileValidator<T>(data: T, schema: JSONSchemaType<T>) {
 export async function validateQueueFile() {
   const queue = await DataProviderFactory().queue.get();
 
-  const queueItemsSchema: JSONSchemaType<QueueItem> = {
-    type: "object",
-    properties: {
-      name: { type: "string", enum: Object.values(ActionName) },
-      status: { type: "string", enum: Object.values(ActionStatus) },
-    },
-    required: ["name", "status"],
+  const actionNameSchema: JSONSchemaType<ActionName> = {
+    type: "string",
+    enum: Object.values(ActionName),
   };
 
   const queueSchema: JSONSchemaType<Queue> = {
     type: "object",
     properties: {
-      items: {
+      executed: {
         type: "array",
-        items: queueItemsSchema,
+        items: actionNameSchema,
       },
-      nextActionIndex: { type: "number" },
+      pending: { type: "array", items: actionNameSchema },
     },
-    required: ["items", "nextActionIndex"],
+    required: ["executed", "pending"],
   };
 
   fileValidator(queue, queueSchema);

@@ -1,8 +1,7 @@
-import { ActionName, ActionStatus } from "../../types/enums";
+import {  ActionStatus } from "../../types/enums";
 import {
   Queue,
-  QueueFilteredByActionStatus,
-  QueueItem,
+  QueueByStatusWithExecutedHistory,
 } from "../../types/types";
 import jsonfile from "jsonfile";
 
@@ -12,47 +11,26 @@ export async function getQueue(): Promise<Queue> {
   return await jsonfile.readFile(QUEUE_FILE_PATH);
 }
 
-export async function getQueueItemsByActionStatus(
+export async function getQueueByStatus(
   count: number,
   statuses: ActionStatus[]
-): Promise<QueueFilteredByActionStatus> {
+): Promise<QueueByStatusWithExecutedHistory> {
   const queue = await getQueue();
 
-  const filterByStatus = (status: ActionStatus) =>
-    queue.items.filter(({ status: itemStatus }) => itemStatus === status);
+  const pendingQueue = queue.pending;
+  const executedQueue = queue.executed.slice(-count);
 
-  const filterByName = (actionsStatus: ActionStatus, queueItems: QueueItem[]) =>
-    statuses.includes(actionsStatus) ? queueItems.map(({ name }) => name) : [];
-
-  let executedItems: QueueItem[] = [];
-  let queueItemsExecuted: ActionName[] = [];
-
-  if (statuses.includes(ActionStatus.COMPLETED)) {
-    executedItems = filterByStatus(ActionStatus.COMPLETED);
-
-    queueItemsExecuted = filterByName(ActionStatus.COMPLETED, executedItems);
-  }
-
-  let pendingItems: QueueItem[] = [];
-  let queueItemsPending: ActionName[] = [];
-
-  if (statuses.includes(ActionStatus.PENDING)) {
-    pendingItems = filterByStatus(ActionStatus.PENDING);
-
-    queueItemsPending = filterByName(ActionStatus.PENDING, pendingItems);
-  }
-
+  const executedItemsHistory = queue.executed.length - count;
   return {
     items: {
-      executed: statuses.includes(ActionStatus.COMPLETED)
-        ? queueItemsExecuted.slice(-count)
+      executed: statuses.includes(ActionStatus.EXECUTED)
+        ? executedQueue
         : undefined,
       pending: statuses.includes(ActionStatus.PENDING)
-        ? queueItemsPending
+        ? pendingQueue
         : undefined,
     },
-    executedItemsHistory:
-      executedItems.length - Math.min(count, executedItems.length),
+    executedItemsHistory,
   };
 }
 

@@ -1,8 +1,8 @@
 import { ActionName, ActionStatus } from "../../types/enums";
-import { Queue } from "../../types/types";
+import { Queue, QueueByStatusWithExecutedHistory } from "../../types/types";
 import jsonfile from "jsonfile";
 import {
-  getQueueItemsByActionStatus,
+  getQueueByStatus,
   QUEUE_FILE_PATH,
   getQueue,
   updateQueue,
@@ -12,17 +12,16 @@ jest.mock("jsonfile");
 
 describe("queue", () => {
   const queue: Queue = {
-    items: [
-      { name: ActionName.INVITE, status: ActionStatus.COMPLETED },
-      { name: ActionName.INVITE, status: ActionStatus.COMPLETED },
-      { name: ActionName.INVITE, status: ActionStatus.COMPLETED },
-      { name: ActionName.VISIT, status: ActionStatus.COMPLETED },
-      { name: ActionName.VISIT, status: ActionStatus.COMPLETED },
-      { name: ActionName.INVITE, status: ActionStatus.COMPLETED },
-      { name: ActionName.SEND_MESSAGE, status: ActionStatus.PENDING },
-      { name: ActionName.VISIT, status: ActionStatus.COMPLETED },
+    executed: [
+      ActionName.INVITE,
+      ActionName.INVITE,
+      ActionName.INVITE,
+      ActionName.VISIT,
+      ActionName.VISIT,
+      ActionName.INVITE,
+      ActionName.VISIT,
     ],
-    nextActionIndex: 6,
+    pending: [ActionName.SEND_MESSAGE],
   };
 
   (jsonfile.readFile as jest.Mock).mockReturnValue(queue);
@@ -31,15 +30,15 @@ describe("queue", () => {
     // Arrange
     const count = 3;
 
-    it("should return the filtered queue items by action status and the correct executedItemsHistory", async () => {
+    it("should return the correct filtered queue and the correct executedItemsHistory", async () => {
       // Arrange
-      const statuses = [ActionStatus.COMPLETED, ActionStatus.PENDING];
+      const statuses = [ActionStatus.EXECUTED, ActionStatus.PENDING];
 
       // Act
-      const result = await getQueueItemsByActionStatus(count, statuses);
+      const result = await getQueueByStatus(count, statuses);
 
       // Assert
-      const expectedResult = {
+      const expectedResult: QueueByStatusWithExecutedHistory = {
         items: {
           executed: [ActionName.VISIT, ActionName.INVITE, ActionName.VISIT],
           pending: [ActionName.SEND_MESSAGE],
@@ -50,20 +49,20 @@ describe("queue", () => {
       expect(result).toEqual(expectedResult);
     });
 
-    it(`should return items.executed as undefined when status 'completed' is not in the statuses array and executedItemsHistory as 0`, async () => {
+    it(`should return items.executed as undefined when status 'executed' is not in the statuses array`, async () => {
       // Arrange
       const count = 3;
       const statuses = [ActionStatus.PENDING];
       // Act
-      const result = await getQueueItemsByActionStatus(count, statuses);
+      const result = await getQueueByStatus(count, statuses);
 
       // Assert
-      const expectedResult = {
+      const expectedResult: QueueByStatusWithExecutedHistory = {
         items: {
           executed: undefined,
           pending: [ActionName.SEND_MESSAGE],
         },
-        executedItemsHistory: 0,
+        executedItemsHistory: 4,
       };
 
       expect(result).toEqual(expectedResult);
@@ -71,9 +70,9 @@ describe("queue", () => {
 
     it(`should return items.pending as undefined when status 'pending' is not in the statuses array`, async () => {
       // Arrange
-      const statuses = [ActionStatus.COMPLETED];
+      const statuses = [ActionStatus.EXECUTED];
       // Act
-      const result = await getQueueItemsByActionStatus(count, statuses);
+      const result = await getQueueByStatus(count, statuses);
 
       // Assert
       const expectedResult = {
@@ -101,11 +100,8 @@ describe("queue", () => {
     it(`should call jsonfile.writeFile with path ${QUEUE_FILE_PATH}`, async () => {
       // Arrange
       const queue: Queue = {
-        items: [
-          { name: ActionName.INVITE, status: ActionStatus.PENDING },
-          { name: ActionName.SEND_MESSAGE, status: ActionStatus.COMPLETED },
-        ],
-        nextActionIndex: 1,
+        pending: [ActionName.INVITE],
+        executed: [ActionName.SEND_MESSAGE],
       };
 
       // Act

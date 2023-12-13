@@ -1,5 +1,5 @@
 import { DataProviderFactory } from "../data";
-import { ActionName, ActionStatus } from "../types/enums";
+import { ActionName } from "../types/enums";
 import { Queue } from "../types/types";
 import {
   addActionToQueue,
@@ -23,12 +23,8 @@ describe("queue", () => {
   };
 
   const queue = {
-    items: [
-      { name: ActionName.INVITE, status: ActionStatus.PENDING },
-      { name: ActionName.SEND_MESSAGE, status: ActionStatus.PENDING },
-    ],
-    nextActionIndex: 0,
-    lastExecutedActionIndex: 0,
+    pending: [ActionName.INVITE, ActionName.SEND_MESSAGE],
+    executed: [],
   };
 
   beforeEach(() => {
@@ -45,7 +41,7 @@ describe("queue", () => {
   });
 
   describe("addActionToQueue", () => {
-    it("should add an action to the queue", async () => {
+    it("should add an action to the pending queue", async () => {
       // Arrange
       const actionName = ActionName.INVITE;
 
@@ -53,11 +49,8 @@ describe("queue", () => {
       await addActionToQueue(actionName);
 
       // Assert
-      expect(queue.items).toHaveLength(3);
-      expect(queue.items[2]).toEqual({
-        name: actionName,
-        status: ActionStatus.PENDING,
-      });
+      expect(queue.pending).toHaveLength(3);
+      expect(queue.pending[2]).toEqual(ActionName.INVITE);
       expect(DataProviderFactory().queue.update).toHaveBeenCalledWith(queue);
     });
   });
@@ -91,30 +84,29 @@ describe("queue", () => {
   });
 
   describe("hasAnyActionInQueue", () => {
-    it("should return true when there is an action in the queue", () => {
+    it("should return true when there is an action in the pending queue", () => {
       // Arrange
       const queue: Queue = {
-        items: [{ name: ActionName.INVITE, status: ActionStatus.PENDING }],
-        nextActionIndex: 0,
+        pending: [ActionName.INVITE],
+        executed: [],
       };
 
       // Act
-      const result = hasAnyActionInQueue(queue);
+      const result = hasAnyActionInQueue(queue.pending);
 
       // Assert
       expect(result).toEqual(true);
     });
 
-    it("should return false when there is no action in the queue", () => {
+    it("should return false when there is no action in the pending queue", () => {
       // Arrange
       const emptyQueue = {
-        items: [],
-        nextActionIndex: 0,
-        lastExecutedActionIndex: 0,
+        pending: [],
+        executed: [],
       };
 
       // Act
-      const result = hasAnyActionInQueue(emptyQueue);
+      const result = hasAnyActionInQueue(emptyQueue.pending);
 
       // Assert
       expect(result).toEqual(false);
@@ -125,10 +117,6 @@ describe("queue", () => {
     it("should return the next executable action when it exists", () => {
       // Arrange
       const expectedAction = {
-        queueActionToExecute: {
-          name: ActionName.INVITE,
-          status: ActionStatus.PENDING,
-        },
         queueActionToExecuteIndex: 0,
         executableAction: {
           name: ActionName.INVITE,
@@ -137,7 +125,7 @@ describe("queue", () => {
       };
 
       // Act
-      const result = findNextExecutableAction(actions, queue);
+      const result = findNextExecutableAction(actions, queue.pending);
 
       // Assert
       expect(result).toEqual(expectedAction);
@@ -146,13 +134,12 @@ describe("queue", () => {
     it("should return null when there is no next executable action", () => {
       // Arrange
       const emptyQueue = {
-        items: [],
-        nextActionIndex: 0,
-        lastExecutedActionIndex: 0,
+        pending: [],
+        executed: [],
       };
 
       // Act
-      const result = findNextExecutableAction(actions, emptyQueue);
+      const result = findNextExecutableAction(actions, emptyQueue.pending);
 
       // Assert
       expect(result).toBeNull();

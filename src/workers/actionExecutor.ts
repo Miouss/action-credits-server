@@ -4,7 +4,6 @@ import {
   findNextExecutableAction,
   hasAnyActionInQueue,
 } from "../services/queue";
-import { ActionStatus } from "../types/enums";
 
 export function executeActionEachInterval() {
   return setInterval(async () => {
@@ -19,29 +18,21 @@ export function executeActionEachInterval() {
 async function executeAction() {
   const queue = await DataProviderFactory().queue.get();
 
-  if (!hasAnyActionInQueue(queue)) return console.log("No action to execute");
+  if (!hasAnyActionInQueue(queue.pending))
+    return console.log("No action to execute");
 
   const actions = await DataProviderFactory().actions.get();
 
-  const data = findNextExecutableAction(actions, queue);
+  const data = findNextExecutableAction(actions, queue.pending);
 
   if (!data) return console.log("No action eligible for execution");
 
-  const { executableAction, queueActionToExecute, queueActionToExecuteIndex } =
-    data;
+  const { executableAction, queueActionToExecuteIndex } = data;
 
-  const isNormalExecutionOrder =
-    queueActionToExecuteIndex === queue.nextActionIndex;
+  queue.pending.splice(queueActionToExecuteIndex, 1);
+  queue.executed.push(executableAction.name);
 
-  if (!isNormalExecutionOrder) {
-    // move the executed action after the previous last executed action to keep the executed actions in order
-    queue.items.splice(queueActionToExecuteIndex, 1);
-    queue.items.splice(queue.nextActionIndex, 0, queueActionToExecute);
-  }
-
-  queueActionToExecute.status = ActionStatus.COMPLETED;
   executableAction.credits--;
-  queue.nextActionIndex++;
 
   await DataProviderFactory().actions.update(actions);
   await DataProviderFactory().queue.update(queue);
