@@ -4,8 +4,8 @@ import jsonfile from "jsonfile";
 
 export const QUEUE_FILE_PATH = "./src/data/file-based/files/queue.json";
 
-export async function getQueue(): Promise<Queue> {
-  return await jsonfile.readFile(QUEUE_FILE_PATH);
+export function getQueue(): Promise<Queue> {
+  return jsonfile.readFile(QUEUE_FILE_PATH);
 }
 
 export async function getQueueByStatus(
@@ -32,6 +32,6 @@ export async function getQueueByStatus(
   };
 }
 
-export async function updateQueue(queue: Queue) {
-  await jsonfile.writeFile(QUEUE_FILE_PATH, queue);
+export function updateQueue(queue: Queue) {
+  return jsonfile.writeFile(QUEUE_FILE_PATH, queue);
 }

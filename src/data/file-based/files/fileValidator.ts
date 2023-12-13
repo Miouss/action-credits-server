@@ -1,7 +1,7 @@
 import Ajv, { JSONSchemaType } from "ajv";
-import { ActionName } from "../../types/enums";
-import { Action, Actions, Queue } from "../../types/types";
-import { DataProviderFactory } from "..";
+import { ActionName } from "../../../types/enums";
+import { Action, Actions, Queue } from "../../../types/types";
+import { DataProviderFactory } from "../..";
 
 export function FileValidatorFactoryProvider() {
   return {
@@ -70,18 +70,16 @@ export async function validateActionsFile() {
   fileValidator(actions, actionsSchema);
 }
 
-export async function fileValidationHandler<T>(
-  type: "actions" | "queue",
-  update: (data: T) => Promise<void>,
-  defaultContent: T
-) {
+export type FileType = "actions" | "queue";
+
+export async function fileValidationHandler<T>(type: FileType, defaultContent: T) {
   try {
     console.log(`Validating ${type} file...`);
     await FileValidatorFactoryProvider()[type]();
     console.log(`${type} file is valid, no need to create new file`);
   } catch (err) {
     console.log(`${type} file is invalid, creating new file...`);
-    await update(defaultContent);
+    await DataProviderFactory()[type].update(defaultContent as Actions & Queue);
     console.log(`${type} file created`);
   }
 }
