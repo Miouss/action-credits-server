@@ -1,7 +1,7 @@
 import { DataProviderFactory } from "../data";
-import { executeActionEachInterval } from "./actionExecutor";
-import { refreshCreditsDelay } from "./actionsRefresher";
+import { executeActionEachInterval } from "./executor";
 import dotenv from "dotenv";
+import { refreshCreditsDelay } from "./refresherRefreshCreditsDelay";
 dotenv.config();
 
 await DataProviderFactory().init();
