@@ -36,7 +36,7 @@ export async function getQueueItemsByActionStatus(
   let pendingItems: QueueItem[] = [];
   let queueItemsPending: ActionName[] = [];
 
-  if (statuses.includes(ActionStatus.COMPLETED)) {
+  if (statuses.includes(ActionStatus.PENDING)) {
     pendingItems = filterByStatus(ActionStatus.PENDING);
 
     queueItemsPending = filterByName(ActionStatus.PENDING, pendingItems);
