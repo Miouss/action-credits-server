@@ -28,9 +28,11 @@ describe("queue", () => {
   (jsonfile.readFile as jest.Mock).mockReturnValue(queue);
 
   describe("getQueueItemsByActionStatus", () => {
-    it("should return the filtered queue items by action status", async () => {
+    // Arrange
+    const count = 3;
+
+    it("should return the filtered queue items by action status and the correct executedItemsHistory", async () => {
       // Arrange
-      const count = 3;
       const statuses = [ActionStatus.COMPLETED, ActionStatus.PENDING];
 
       // Act
@@ -41,6 +43,43 @@ describe("queue", () => {
         items: {
           executed: [ActionName.VISIT, ActionName.INVITE, ActionName.VISIT],
           pending: [ActionName.SEND_MESSAGE],
+        },
+        executedItemsHistory: 4,
+      };
+
+      expect(result).toEqual(expectedResult);
+    });
+
+    it(`should return items.executed as undefined when status 'completed' is not in the statuses array and executedItemsHistory as 0`, async () => {
+      // Arrange
+      const count = 3;
+      const statuses = [ActionStatus.PENDING];
+      // Act
+      const result = await getQueueItemsByActionStatus(count, statuses);
+
+      // Assert
+      const expectedResult = {
+        items: {
+          executed: undefined,
+          pending: [ActionName.SEND_MESSAGE],
+        },
+        executedItemsHistory: 0,
+      };
+
+      expect(result).toEqual(expectedResult);
+    });
+
+    it(`should return items.pending as undefined when status 'pending' is not in the statuses array`, async () => {
+      // Arrange
+      const statuses = [ActionStatus.COMPLETED];
+      // Act
+      const result = await getQueueItemsByActionStatus(count, statuses);
+
+      // Assert
+      const expectedResult = {
+        items: {
+          executed: [ActionName.VISIT, ActionName.INVITE, ActionName.VISIT],
+          pending: undefined,
         },
         executedItemsHistory: 4,
       };
@@ -73,10 +112,7 @@ describe("queue", () => {
       await updateQueue(queue);
 
       // Assert
-      expect(jsonfile.writeFile).toHaveBeenCalledWith(
-        QUEUE_FILE_PATH,
-        queue
-      );
+      expect(jsonfile.writeFile).toHaveBeenCalledWith(QUEUE_FILE_PATH, queue);
     });
   });
 });

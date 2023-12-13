@@ -44,8 +44,12 @@ export async function getQueueItemsByActionStatus(
 
   return {
     items: {
-      executed: queueItemsExecuted.slice(-count),
-      pending: queueItemsPending,
+      executed: statuses.includes(ActionStatus.COMPLETED)
+        ? queueItemsExecuted.slice(-count)
+        : undefined,
+      pending: statuses.includes(ActionStatus.PENDING)
+        ? queueItemsPending
+        : undefined,
     },
     executedItemsHistory:
       executedItems.length - Math.min(count, executedItems.length),

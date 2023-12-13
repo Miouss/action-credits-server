@@ -27,8 +27,8 @@ export interface Queue {
 }
 
 export interface QueueItemsByActionStatus {
-  executed: ActionName[];
-  pending: ActionName[];
+  executed: ActionName[] | undefined;
+  pending: ActionName[] | undefined;
 }
 
 export interface QueueFilteredByActionStatus {
