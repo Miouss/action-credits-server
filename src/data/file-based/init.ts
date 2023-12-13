@@ -3,14 +3,13 @@ import { DataProviderFactory } from "..";
 import { ActionName } from "../../types/enums";
 import { Queue, Actions, Action } from "../../types/types";
 import { FileTypes, defaultContent } from "./config";
-
-
+import { FileValidatorFactoryProvider } from ".";
 
 export async function seedAllData() {
   await Promise.all([seedData(FileTypes.ACTIONS), seedData(FileTypes.QUEUE)]);
 }
 
-async function seedData(type: FileTypes) {
+export async function seedData(type: FileTypes) {
   try {
     console.log(`Validating ${type} file...`);
     await FileValidatorFactoryProvider()[type]();
@@ -24,12 +23,6 @@ async function seedData(type: FileTypes) {
   }
 }
 
-function FileValidatorFactoryProvider() {
-  return {
-    queue: validateQueueFile,
-    actions: validateActionsFile,
-  };
-}
 
 async function fileValidator<T>(data: T, schema: JSONSchemaType<T>) {
   const ajv = new Ajv();
@@ -41,7 +34,7 @@ async function fileValidator<T>(data: T, schema: JSONSchemaType<T>) {
   }
 }
 
-async function validateQueueFile() {
+export async function validateQueueFile() {
   const queue = await DataProviderFactory().queue.get();
 
   const actionNameSchema: JSONSchemaType<ActionName> = {
@@ -64,7 +57,7 @@ async function validateQueueFile() {
   fileValidator(queue, queueSchema);
 }
 
-async function validateActionsFile() {
+export async function validateActionsFile() {
   const actions = await DataProviderFactory().actions.get();
 
   const actionSchema: JSONSchemaType<Action> = {

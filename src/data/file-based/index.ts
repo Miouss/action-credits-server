@@ -7,7 +7,7 @@ import {
 } from "./queue";
 import { getActions, updateActions } from "./actions";
 import { ActionStatus } from "../../types/enums";
-import { seedAllData } from "./init";
+import { seedAllData, validateActionsFile, validateQueueFile } from "./init";
 
 export function FileBasedProvider(): IDataProvider {
   return {
@@ -23,5 +23,13 @@ export function FileBasedProvider(): IDataProvider {
 
       update: (queue) => updateQueue(queue),
     },
+  };
+}
+
+// put fileValidator instead of init.ts to mock it
+export function FileValidatorFactoryProvider() {
+  return {
+    queue: validateQueueFile,
+    actions: validateActionsFile,
   };
 }
