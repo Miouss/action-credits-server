@@ -1,5 +1,6 @@
 import { DataProviderFactory } from "../data";
 import { ActionName, ActionStatus } from "../types/enums";
+import { Queue } from "../types/types";
 import {
   addActionToQueue,
   hasAnyActionInQueue,
@@ -27,6 +28,7 @@ describe("queue", () => {
       { name: ActionName.SEND_MESSAGE, status: ActionStatus.PENDING },
     ],
     nextActionIndex: 0,
+    lastExecutedActionIndex: 0,
   };
 
   beforeEach(() => {
@@ -91,7 +93,7 @@ describe("queue", () => {
   describe("hasAnyActionInQueue", () => {
     it("should return true when there is an action in the queue", () => {
       // Arrange
-      const queue = {
+      const queue: Queue = {
         items: [{ name: ActionName.INVITE, status: ActionStatus.PENDING }],
         nextActionIndex: 0,
       };
@@ -105,13 +107,14 @@ describe("queue", () => {
 
     it("should return false when there is no action in the queue", () => {
       // Arrange
-      const queue = {
+      const emptyQueue = {
         items: [],
         nextActionIndex: 0,
+        lastExecutedActionIndex: 0,
       };
 
       // Act
-      const result = hasAnyActionInQueue(queue);
+      const result = hasAnyActionInQueue(emptyQueue);
 
       // Assert
       expect(result).toEqual(false);
@@ -145,6 +148,7 @@ describe("queue", () => {
       const emptyQueue = {
         items: [],
         nextActionIndex: 0,
+        lastExecutedActionIndex: 0,
       };
 
       // Act
