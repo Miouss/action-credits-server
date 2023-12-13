@@ -7,7 +7,7 @@ import {
 } from "./queue";
 import { getActions, updateActions } from "./actions";
 import { ActionStatus } from "../../types/enums";
-import { seedAllData } from "./files/seedData";
+import { seedAllData } from "./init";
 
 export function FileBasedProvider(): IDataProvider {
   return {

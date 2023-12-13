@@ -1,6 +1,6 @@
-import { randomizeCredits, randomUUID } from "../../../services/actions";
-import { ActionName } from "../../../types/enums";
-import { Actions, Queue } from "../../../types/types";
+import { randomizeCredits, randomUUID } from "../../services/actions";
+import { ActionName } from "../../types/enums";
+import { Queue, Actions } from "../../types/types";
 
 const DEFAULT_QUEUE: Queue = {
   pending: [],

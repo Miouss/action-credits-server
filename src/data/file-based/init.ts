@@ -1,9 +1,30 @@
 import Ajv, { JSONSchemaType } from "ajv";
-import { ActionName } from "../../../types/enums";
-import { Action, Actions, Queue } from "../../../types/types";
-import { DataProviderFactory } from "../..";
+import { DataProviderFactory } from "..";
+import { ActionName } from "../../types/enums";
+import { Queue, Actions, Action } from "../../types/types";
+import { FileTypes, defaultContent } from "./config";
 
-export function FileValidatorFactoryProvider() {
+
+
+export async function seedAllData() {
+  await Promise.all([seedData(FileTypes.ACTIONS), seedData(FileTypes.QUEUE)]);
+}
+
+async function seedData(type: FileTypes) {
+  try {
+    console.log(`Validating ${type} file...`);
+    await FileValidatorFactoryProvider()[type]();
+    console.log(`${type} file is valid, no need to create new file`);
+  } catch (err) {
+    console.log(`${type} file is invalid, creating new file...`);
+    await DataProviderFactory()[type].update(
+      defaultContent[type] as Actions & Queue
+    );
+    console.log(`${type} file created`);
+  }
+}
+
+function FileValidatorFactoryProvider() {
   return {
     queue: validateQueueFile,
     actions: validateActionsFile,
@@ -20,7 +41,7 @@ async function fileValidator<T>(data: T, schema: JSONSchemaType<T>) {
   }
 }
 
-export async function validateQueueFile() {
+async function validateQueueFile() {
   const queue = await DataProviderFactory().queue.get();
 
   const actionNameSchema: JSONSchemaType<ActionName> = {
@@ -43,7 +64,7 @@ export async function validateQueueFile() {
   fileValidator(queue, queueSchema);
 }
 
-export async function validateActionsFile() {
+async function validateActionsFile() {
   const actions = await DataProviderFactory().actions.get();
 
   const actionSchema: JSONSchemaType<Action> = {
@@ -68,18 +89,4 @@ export async function validateActionsFile() {
   };
 
   fileValidator(actions, actionsSchema);
-}
-
-export type FileType = "actions" | "queue";
-
-export async function fileValidationHandler<T>(type: FileType, defaultContent: T) {
-  try {
-    console.log(`Validating ${type} file...`);
-    await FileValidatorFactoryProvider()[type]();
-    console.log(`${type} file is valid, no need to create new file`);
-  } catch (err) {
-    console.log(`${type} file is invalid, creating new file...`);
-    await DataProviderFactory()[type].update(defaultContent as Actions & Queue);
-    console.log(`${type} file created`);
-  }
 }
