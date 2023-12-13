@@ -1,6 +1,6 @@
 import { ActionName, ActionStatus } from "../../types/enums";
 import { Queue } from "../../types/types";
-import mockJsonfile from "jsonfile";
+import jsonfile from "jsonfile";
 import {
   getQueueItemsByActionStatus,
   QUEUE_FILE_PATH,
@@ -25,7 +25,7 @@ describe("queue", () => {
     nextActionIndex: 6,
   };
 
-  (mockJsonfile.readFile as jest.Mock).mockReturnValue(queue);
+  (jsonfile.readFile as jest.Mock).mockReturnValue(queue);
 
   describe("getQueueItemsByActionStatus", () => {
     it("should return the filtered queue items by action status", async () => {
@@ -49,11 +49,12 @@ describe("queue", () => {
     });
   });
   describe("getQueue", () => {
-    it(`should call jsonfile.readFile with path ${QUEUE_FILE_PATH}`, async () => {
+    it(`should call jsonfile.readFile with path ${QUEUE_FILE_PATH} and return the queue`, async () => {
       // Act
       const result = await getQueue();
 
       // Assert
+      expect(jsonfile.readFile).toHaveBeenCalledWith(QUEUE_FILE_PATH);
       expect(result).toEqual(queue);
     });
   });
@@ -72,7 +73,7 @@ describe("queue", () => {
       await updateQueue(queue);
 
       // Assert
-      expect(mockJsonfile.writeFile).toHaveBeenCalledWith(
+      expect(jsonfile.writeFile).toHaveBeenCalledWith(
         QUEUE_FILE_PATH,
         queue
       );
