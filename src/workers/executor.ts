@@ -15,7 +15,7 @@ export function executeActionEachInterval() {
   }, EXECUTION_INTERVAL);
 }
 
-async function executeAction() {
+export async function executeAction() {
   const queue = await DataProviderFactory().queue.get();
 
   if (!hasAnyActionInQueue(queue.pending))
