@@ -18,7 +18,10 @@ export async function resetCredits(originalActions: Actions) {
 
   const needReset = hasUsedCredits(actions, originalActions);
 
-  if (!needReset) return;
+  if (!needReset) {
+    console.log("No need to reset credits")
+    return;
+  }
 
   actions.items.forEach((action) => {
     action.credits = randomizeCredits();
@@ -27,6 +30,7 @@ export async function resetCredits(originalActions: Actions) {
   actions.id = randomUUID();
 
   await DataProviderFactory().actions.update(actions);
+  console.log("Credits have been reseted");
 }
 
 
