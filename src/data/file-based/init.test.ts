@@ -4,7 +4,6 @@ import { DataProviderFactory } from "..";
 import { FileValidatorFactoryProvider } from ".";
 
 jest.mock(".", () => ({
-  ...jest.requireActual("."),
   FileValidatorFactoryProvider: jest.fn(),
 }));
 
@@ -29,7 +28,7 @@ describe("init", () => {
 
       (DataProviderFactory as jest.Mock).mockReturnValue({
         [type]: {
-          update: jest.fn(() => Promise.resolve()),
+          create: jest.fn(() => Promise.resolve()),
         },
       });
 
@@ -37,7 +36,7 @@ describe("init", () => {
       await seedData(type);
 
       // Assert
-      expect(DataProviderFactory()[type].update).toHaveBeenCalledWith(
+      expect(DataProviderFactory()[type].create).toHaveBeenCalledWith(
         defaultContent[type]
       );
     }
@@ -52,7 +51,7 @@ describe("init", () => {
 
       (DataProviderFactory as jest.Mock).mockReturnValue({
         [type]: {
-          update: jest.fn(),
+          create: jest.fn(),
         },
       });
 
@@ -60,7 +59,7 @@ describe("init", () => {
       await seedData(type);
 
       // Assert
-      expect(DataProviderFactory()[type].update).not.toHaveBeenCalled();
+      expect(DataProviderFactory()[type].create).not.toHaveBeenCalled();
     }
   );
 });

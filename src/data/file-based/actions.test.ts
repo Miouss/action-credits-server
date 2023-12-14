@@ -2,8 +2,12 @@ import jsonfile from "jsonfile";
 import { ACTIONS_FILE_PATH, getActions, updateActions } from "./actions";
 import { ActionName } from "../../types/enums";
 import { Actions } from "../../types/types";
+import { waitForFileAccess } from "./init";
 
 jest.mock("jsonfile");
+jest.mock("./init", () => ({
+  waitForFileAccess: jest.fn(),
+}));
 
 describe("actions", () => {
   const actions: Actions = {
@@ -15,6 +19,7 @@ describe("actions", () => {
   };
 
   (jsonfile.readFile as jest.Mock).mockReturnValue(actions);
+  (waitForFileAccess as jest.Mock).mockReturnValue(jest.fn());
 
   describe("getActions", () => {
     it(`should call jsonfile.readFile with path ${ACTIONS_FILE_PATH} and return the actions`, async () => {

@@ -7,8 +7,12 @@ import {
   getQueue,
   updateQueue,
 } from "./queue";
+import { waitForFileAccess } from "./init";
 
 jest.mock("jsonfile");
+jest.mock("./init", () => ({
+  waitForFileAccess: jest.fn(),
+}));
 
 describe("queue", () => {
   const empytQueue: Queue = {
@@ -32,6 +36,7 @@ describe("queue", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     (jsonfile.readFile as jest.Mock).mockReturnValue(queue);
+    (waitForFileAccess as jest.Mock).mockReturnValue(jest.fn());
   });
 
   describe("getQueueItemsByActionStatus", () => {
