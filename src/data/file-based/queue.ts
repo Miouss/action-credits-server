@@ -22,13 +22,16 @@ export async function getQueueByStatus(
     ? queue.executed.slice(-count)
     : undefined;
 
-  const executedItemsHistory = queue.executed.length - count;
+  const executedItemsHistory = statuses.includes(ActionStatus.EXECUTED)
+    ? Math.max(queue.executed.length - count, 0)
+    : undefined;
+
   return {
     items: {
       executed: executedQueue,
       pending: pendingQueue,
     },
-    executedItemsHistory,
+    executedItemsHistory: executedItemsHistory,
   };
 }
 

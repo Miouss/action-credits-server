@@ -20,5 +20,5 @@ export interface QueueByStatusWithExecutedHistory {
     executed?: ActionName[];
     pending?: ActionName[];
   };
-  executedItemsHistory: number;
+  executedItemsHistory?: number;
 }

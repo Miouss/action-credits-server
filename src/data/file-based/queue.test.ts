@@ -11,6 +11,11 @@ import {
 jest.mock("jsonfile");
 
 describe("queue", () => {
+  const empytQueue: Queue = {
+    executed: [],
+    pending: [],
+  };
+
   const queue: Queue = {
     executed: [
       ActionName.INVITE,
@@ -24,11 +29,45 @@ describe("queue", () => {
     pending: [ActionName.SEND_MESSAGE],
   };
 
-  (jsonfile.readFile as jest.Mock).mockReturnValue(queue);
+  beforeEach(() => {
+    jest.clearAllMocks();
+    (jsonfile.readFile as jest.Mock).mockReturnValue(queue);
+  });
 
   describe("getQueueItemsByActionStatus", () => {
     // Arrange
     const count = 3;
+
+    it.each([
+      [[ActionStatus.EXECUTED, ActionStatus.PENDING], [], [], 0],
+      [[ActionStatus.PENDING], undefined, [], undefined],
+      [[ActionStatus.EXECUTED], [], undefined, 0],
+    ])(
+      "should return the correct queue filtered when the pending and executed queue is empty regardless of the statuses array",
+      async (
+        statuses,
+        expectedExecutedItems,
+        expectedPendingActions,
+        expectedExecutedItemsHistory
+      ) => {
+        // Arrange
+        (jsonfile.readFile as jest.Mock).mockReturnValue(empytQueue);
+
+        // Act
+        const result = await getQueueByStatus(count, statuses);
+
+        // Assert
+        const expectedResult: QueueByStatusWithExecutedHistory = {
+          items: {
+            executed: expectedExecutedItems,
+            pending: expectedPendingActions,
+          },
+          executedItemsHistory: expectedExecutedItemsHistory,
+        };
+
+        expect(result).toEqual(expectedResult);
+      }
+    );
 
     it("should return the correct filtered queue and the correct executedItemsHistory", async () => {
       // Arrange
@@ -49,10 +88,11 @@ describe("queue", () => {
       expect(result).toEqual(expectedResult);
     });
 
-    it(`should return items.executed as undefined when status 'executed' is not in the statuses array`, async () => {
+    it(`should return items.executed and executedItemsHistory as undefined when status 'executed' is not in the statuses array`, async () => {
       // Arrange
       const count = 3;
       const statuses = [ActionStatus.PENDING];
+
       // Act
       const result = await getQueueByStatus(count, statuses);
 
@@ -62,7 +102,7 @@ describe("queue", () => {
           executed: undefined,
           pending: [ActionName.SEND_MESSAGE],
         },
-        executedItemsHistory: 4,
+        executedItemsHistory: undefined,
       };
 
       expect(result).toEqual(expectedResult);
