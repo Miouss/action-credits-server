@@ -5,6 +5,7 @@ const commonConfig = {
     "node_modules",
     "\\.git",
     "./src/data/file-based/files/*.json",
+    "./src/data/file-based/files/*.json.lock",
   ],
   watch_options: {
     followSymlinks: false,

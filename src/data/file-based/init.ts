@@ -4,6 +4,7 @@ import { ActionName } from "../../types/enums";
 import { Queue, Actions, Action } from "../../types/types";
 import { FileTypes, defaultContent } from "./config";
 import { FileValidatorFactoryProvider } from ".";
+import lockfile from "proper-lockfile";
 
 export async function seedAllData() {
   await Promise.all([seedData(FileTypes.ACTIONS), seedData(FileTypes.QUEUE)]);
@@ -22,7 +23,6 @@ export async function seedData(type: FileTypes) {
     console.log(`${type} file created`);
   }
 }
-
 
 function fileValidator<T>(data: T, schema: JSONSchemaType<T>) {
   const ajv = new Ajv();
@@ -88,4 +88,14 @@ export async function validateActionsFile() {
   };
 
   fileValidator(actions, actionsSchema);
+}
+
+export function waitForFileAccess(path: string) {
+  return lockfile.lock(path, {
+    retries: {
+      retries: 10,
+      minTimeout: 100,
+      maxTimeout: 1000,
+    },
+  });
 }

@@ -1,11 +1,18 @@
 import { ActionStatus } from "../../types/enums";
 import { Queue, QueueByStatusWithExecutedHistory } from "../../types/types";
 import jsonfile from "jsonfile";
+import { waitForFileAccess } from "./init";
 
 export const QUEUE_FILE_PATH = "./src/data/file-based/files/queue.json";
 
-export function getQueue(): Promise<Queue> {
-  return jsonfile.readFile(QUEUE_FILE_PATH);
+export async function getQueue(): Promise<Queue> {
+  const release = await waitForFileAccess(QUEUE_FILE_PATH);
+
+  const queue = await jsonfile.readFile(QUEUE_FILE_PATH);
+
+  await release();
+
+  return queue;
 }
 
 export async function getQueueByStatus(
@@ -35,6 +42,10 @@ export async function getQueueByStatus(
   };
 }
 
-export function updateQueue(queue: Queue) {
-  return jsonfile.writeFile(QUEUE_FILE_PATH, queue);
+export async function updateQueue(queue: Queue) {
+  const release = await waitForFileAccess(QUEUE_FILE_PATH);
+
+  await jsonfile.writeFile(QUEUE_FILE_PATH, queue);
+
+  await release();
 }
