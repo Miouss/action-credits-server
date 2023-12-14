@@ -7,7 +7,7 @@
   "scripts": {
     "test": "jest",
     "watch": "jest --watch",
-    "start": "pm2 flush && pm2 restart ecosystem.config.cjs && pm2 logs",
+    "start": "pm2 flush && pm2 restart ecosystem.config.cjs && pm2 logs --lines 0",
     "kill": "pm2 delete all",
     "monitor": "pm2 monit",
     "clear": "pm2 flush"
