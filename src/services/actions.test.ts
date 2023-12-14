@@ -1,12 +1,23 @@
+import { DataProviderFactory } from "../data";
 import { ActionName } from "../types/enums";
+import { Actions } from "../types/types";
 import {
   findActionByName,
   hasUsedCredits,
   randomizeCredits,
+  resetCredits,
   verifyCredits,
 } from "./actions";
 
+jest.mock("../data", () => ({
+  DataProviderFactory: jest.fn(),
+}));
+
 describe("actions", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+  
   describe("findActionByName", () => {
     const credits = 3;
     const actions = {
@@ -37,6 +48,90 @@ describe("actions", () => {
 
       // Assert
       expect(result).toBeUndefined();
+    });
+  });
+  describe("resetCredits", () => {
+    const previousActions: Actions = {
+      id: "id",
+      items: [
+        {
+          name: ActionName.INVITE,
+          credits: 10,
+        },
+        {
+          name: ActionName.SEND_MESSAGE,
+          credits: 20,
+        },
+      ],
+    };
+
+    const currentActionsWithoutUsedCredits: Actions = JSON.parse(
+      JSON.stringify(previousActions)
+    );
+
+    const currentActionsWithUsedCredits: Actions = {
+      id: "id",
+      items: [
+        {
+          name: ActionName.INVITE,
+          credits: 0,
+        },
+        {
+          name: ActionName.SEND_MESSAGE,
+          credits: 0,
+        },
+      ],
+    };
+
+    it("should not update the actions file and not modify the actions object if no credits have been used", async () => {
+      // Arrange
+      (DataProviderFactory as jest.Mock).mockReturnValue({
+        actions: {
+          get: jest.fn().mockResolvedValue(currentActionsWithoutUsedCredits),
+          update: jest.fn(),
+        },
+      });
+
+      const previousId = previousActions.id;
+      const previousCredits1 = previousActions.items[0].credits;
+      const previousCredits2 = previousActions.items[1].credits;
+
+      // Act
+      await resetCredits(previousActions);
+
+      // Assert
+      expect(DataProviderFactory().actions.update).not.toHaveBeenCalled();
+      expect(previousId).toBe(currentActionsWithoutUsedCredits.id);
+      expect(currentActionsWithoutUsedCredits.items[0].credits).toBe(
+        previousCredits1
+      );
+      expect(currentActionsWithoutUsedCredits.items[1].credits).toBe(
+        previousCredits2
+      );
+    });
+
+    it("should update the actions file and modify the actions object with new credits and a new id", async () => {
+      // Arrange
+      (DataProviderFactory as jest.Mock).mockReturnValue({
+        actions: {
+          get: jest.fn().mockResolvedValue(currentActionsWithUsedCredits),
+          update: jest.fn(),
+        },
+      });
+
+      const previousId = previousActions.id;
+
+      // Act
+      await resetCredits(previousActions);
+
+      // Assert
+      expect(DataProviderFactory().actions.update).toHaveBeenCalledTimes(1);
+      expect(DataProviderFactory().actions.update).toHaveBeenCalledWith(
+        currentActionsWithUsedCredits
+      );
+      expect(previousId).not.toBe(currentActionsWithUsedCredits.id);
+      expect(currentActionsWithUsedCredits.items[0].credits).toBeGreaterThan(0);
+      expect(currentActionsWithUsedCredits.items[1].credits).toBeGreaterThan(0);
     });
   });
   describe("randomizeCredits", () => {

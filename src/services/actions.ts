@@ -1,3 +1,4 @@
+import { DataProviderFactory } from "../data";
 import { ActionName } from "../types/enums";
 import { Action, Actions } from "../types/types";
 import { v4 as uuidv4 } from "uuid";
@@ -6,9 +7,28 @@ const CREDITS = 100;
 const MAX_CREDITS_PERCENT = 100;
 const MIN_CREDITS_PERCENT = 80;
 
+
 export function findActionByName(actions: Actions, actionName: ActionName) {
   return actions.items.find(({ name }) => name === actionName)!;
 }
+
+
+export async function resetCredits(originalActions: Actions) {
+  const actions = await DataProviderFactory().actions.get();
+
+  const needReset = hasUsedCredits(actions, originalActions);
+
+  if (!needReset) return;
+
+  actions.items.forEach((action) => {
+    action.credits = randomizeCredits();
+  });
+
+  actions.id = randomUUID();
+
+  await DataProviderFactory().actions.update(actions);
+}
+
 
 export function hasUsedCredits(actions: Actions, orignalActions: Actions) {
   return JSON.stringify(orignalActions.items) !== JSON.stringify(actions.items);

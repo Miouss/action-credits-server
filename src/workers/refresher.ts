@@ -1,28 +1,12 @@
+import { REFRESH_CREDITS_INTERVAL } from "../config";
 import { DataProviderFactory } from "../data";
-import { randomUUID, randomizeCredits } from "../services/actions";
-import { Actions } from "../types/types";
-import { refreshCreditsDelay } from "./refresherRefreshCreditsDelay";
+import { resetCredits } from "../services/actions";
 
-export async function resetCredits(originalActions: Actions) {
-  const actions = await DataProviderFactory().actions.get();
+export async function refreshCreditsDelay() {
+  const originalActions = await DataProviderFactory().actions.get();
 
-  let needReset = false;
-
-  if (hasUsedCredits(actions, originalActions)) {
-    needReset = true;
-
-    actions.items.forEach((action) => {
-      action.credits = randomizeCredits();
-    });
-
-    actions.id = randomUUID();
-  }
-
-  if (needReset) await DataProviderFactory().actions.update(actions);
-
-  refreshCreditsDelay(needReset ? actions : originalActions);
-}
-
-export function hasUsedCredits(actions: Actions, originalActions: Actions) {
-  return JSON.stringify(actions) !== JSON.stringify(originalActions);
+  return setTimeout(async () => {
+    await resetCredits(originalActions);
+    refreshCreditsDelay();
+  }, REFRESH_CREDITS_INTERVAL);
 }
