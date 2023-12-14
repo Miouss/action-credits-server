@@ -2,6 +2,7 @@ import { DataProviderFactory } from "../data";
 import { ActionName } from "../types/enums";
 import { Action, Actions } from "../types/types";
 import { v4 as uuidv4 } from "uuid";
+import { findNextExecutableAction, hasAnyActionInQueue } from "./queue";
 
 const CREDITS = 100;
 const MAX_CREDITS_PERCENT = 100;
@@ -10,6 +11,31 @@ const MIN_CREDITS_PERCENT = 80;
 
 export function findActionByName(actions: Actions, actionName: ActionName) {
   return actions.items.find(({ name }) => name === actionName)!;
+}
+
+export async function executeAction() {
+  const queue = await DataProviderFactory().queue.get();
+
+  if (!hasAnyActionInQueue(queue.pending))
+    return console.log("No action to execute");
+
+  const actions = await DataProviderFactory().actions.get();
+
+  const data = findNextExecutableAction(actions, queue.pending);
+
+  if (!data) return console.log("No action eligible for execution");
+
+  const { executableAction, queueActionToExecuteIndex } = data;
+
+  queue.pending.splice(queueActionToExecuteIndex, 1);
+  queue.executed.push(executableAction.name);
+
+  executableAction.credits--;
+
+  await DataProviderFactory().actions.update(actions);
+  await DataProviderFactory().queue.update(queue);
+
+  console.log(`Action '${executableAction.name}' executed`);
 }
 
 

@@ -5,8 +5,8 @@ import { resetCredits } from "../services/actions";
 export async function refreshCreditsDelay() {
   const originalActions = await DataProviderFactory().actions.get();
 
-  return setTimeout(async () => {
+  setTimeout(async () => {
     await resetCredits(originalActions);
-    refreshCreditsDelay();
+    return refreshCreditsDelay();
   }, REFRESH_CREDITS_INTERVAL);
 }
