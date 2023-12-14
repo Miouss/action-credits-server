@@ -40,7 +40,6 @@ export async function validateQueueFile() {
   const actionNameSchema: JSONSchemaType<ActionName> = {
     type: "string",
     enum: Object.values(ActionName),
-    additionalProperties: false,
   };
 
   const queueSchema: JSONSchemaType<Queue> = {
@@ -50,7 +49,10 @@ export async function validateQueueFile() {
         type: "array",
         items: actionNameSchema,
       },
-      pending: { type: "array", items: actionNameSchema },
+      pending: {
+        type: "array",
+        items: actionNameSchema,
+      },
     },
     required: ["executed", "pending"],
     additionalProperties: false,
