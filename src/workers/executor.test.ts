@@ -35,7 +35,7 @@ describe("executor", () => {
     jest.clearAllMocks();
   });
 
-  it("should update the actions and queue file with the correct data after an execution without blocked action in the queue", async () => {
+  it("should call the update function for actions and queue with the correct data after an execution without blocked action in the queue", async () => {
     // Arrange
 
     const queueBeforeExecution: Queue = deepCopy(queueWithPendingAction);
@@ -63,7 +63,7 @@ describe("executor", () => {
     );
   });
 
-  it("should update the actions and queue file with the correct data after an execution with a blocked action in the queue", async () => {
+  it("shouldthe update function for actions and queue with the correct data after an execution with a blocked action in the queue", async () => {
     // Arrange
     const actionsWithBlockingAction: Actions = {
       items: [
@@ -103,7 +103,7 @@ describe("executor", () => {
     );
   });
 
-  it("should not update neither actions or queue file when there is no action to execute", async () => {
+  it("should not update neither actions or queue data when there is no action to execute", async () => {
     // Arrange
     const queueWithoutPendingActions: Queue = {
       pending: [],

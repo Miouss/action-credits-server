@@ -83,7 +83,7 @@ describe("actions", () => {
       ],
     };
 
-    it("should not update the actions file and not modify the actions object if no credits have been used", async () => {
+    it("should not update the actions data and not modify the actions object if no credits have been used", async () => {
       // Arrange
       (DataProviderFactory as jest.Mock).mockReturnValue({
         actions: {
@@ -110,7 +110,7 @@ describe("actions", () => {
       );
     });
 
-    it("should update the actions file and modify the actions object with new credits and a new id", async () => {
+    it("should update the actions data and modify the actions object with new credits and a new id", async () => {
       // Arrange
       (DataProviderFactory as jest.Mock).mockReturnValue({
         actions: {
