@@ -24,7 +24,7 @@ export async function seedData(type: FileTypes) {
 }
 
 
-async function fileValidator<T>(data: T, schema: JSONSchemaType<T>) {
+function fileValidator<T>(data: T, schema: JSONSchemaType<T>) {
   const ajv = new Ajv();
 
   const validate = ajv.compile(schema);
@@ -40,6 +40,7 @@ export async function validateQueueFile() {
   const actionNameSchema: JSONSchemaType<ActionName> = {
     type: "string",
     enum: Object.values(ActionName),
+    additionalProperties: false,
   };
 
   const queueSchema: JSONSchemaType<Queue> = {
@@ -52,6 +53,7 @@ export async function validateQueueFile() {
       pending: { type: "array", items: actionNameSchema },
     },
     required: ["executed", "pending"],
+    additionalProperties: false,
   };
 
   fileValidator(queue, queueSchema);
@@ -67,6 +69,7 @@ export async function validateActionsFile() {
       credits: { type: "number" },
     },
     required: ["name", "credits"],
+    additionalProperties: false,
   };
 
   const actionsSchema: JSONSchemaType<Actions> = {
@@ -79,6 +82,7 @@ export async function validateActionsFile() {
       id: { type: "string" },
     },
     required: ["items", "id"],
+    additionalProperties: false,
   };
 
   fileValidator(actions, actionsSchema);
