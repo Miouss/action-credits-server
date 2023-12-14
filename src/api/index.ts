@@ -8,7 +8,7 @@ initServer();
 
 function initServer() {
   const app = express();
-  const { PORT } = process.env;
+  const { PORT } = process.env || 3001;
 
   app.use(express.json());
   app.use(cors());
