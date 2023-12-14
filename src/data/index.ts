@@ -24,10 +24,12 @@ export function DataProviderFactory(): IDataProvider {
 export interface IDataProvider {
   init: () => Promise<void>;
   actions: {
+    create: (actions: Actions) => Promise<void>;
     get: () => Promise<Actions>;
     update: (actions: Actions) => Promise<void>;
   };
   queue: {
+    create: (queue: Queue) => Promise<void>;
     get: () => Promise<Queue>;
     getQueueByStatus: (
       count: number,

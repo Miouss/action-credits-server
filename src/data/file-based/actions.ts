@@ -21,3 +21,7 @@ export async function updateActions(actions: Actions): Promise<void> {
 
   await release();
 }
+
+export async function createActionsFile(actions: Actions): Promise<void> {
+  await jsonfile.writeFile(ACTIONS_FILE_PATH, actions);
+}

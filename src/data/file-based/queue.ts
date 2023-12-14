@@ -49,3 +49,7 @@ export async function updateQueue(queue: Queue) {
 
   await release();
 }
+
+export async function createQueueFile(queue: Queue) {
+  await jsonfile.writeFile(QUEUE_FILE_PATH, queue);
+}

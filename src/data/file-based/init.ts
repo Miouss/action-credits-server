@@ -17,7 +17,7 @@ export async function seedData(type: FileTypes) {
     console.log(`${type} file is valid, no need to create new file`);
   } catch (err) {
     console.log(`${type} file is invalid, creating new file...`);
-    await DataProviderFactory()[type].update(
+    await DataProviderFactory()[type].create(
       defaultContent[type] as Actions & Queue
     );
     console.log(`${type} file created`);
